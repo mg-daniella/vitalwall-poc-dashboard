@@ -1,0 +1,36 @@
+import { defineStore } from 'pinia'
+import { ref } from 'vue'
+import { dummyWsEvents } from '@/data/dummy'
+
+export const useWebSocketStore = defineStore('websocket', () => {
+  const connected  = ref(false)
+  const last_event = ref(null)
+  const events     = ref([...dummyWsEvents])
+
+  function handleMessage(message) {
+    last_event.value = message
+    events.value.unshift({
+      id:      Date.now(),
+      type:    message.type,
+      message: formatMessage(message),
+      meta:    message.source || '',
+      time:    new Date().toISOString()
+    })
+    if (events.value.length > 50) events.value.pop()
+  }
+
+  function formatMessage(msg) {
+    switch (msg.type) {
+      case 'sensor_update':        return `Sensores actualizados`
+      case 'environmental_update': return `Entorno actualizado`
+      case 'air_quality_update':   return `Calidad del aire actualizada`
+      case 'rule_update':          return `Regla actualizada: ${msg.data?.title || ''}`
+      case 'metrics_update':       return `Métricas recalculadas`
+      case 'alert':                return `Alerta: ${msg.data?.title || ''}`
+      case 'health_update':        return `Estado del sistema actualizado`
+      default:                     return JSON.stringify(msg).slice(0, 80)
+    }
+  }
+
+  return { connected, last_event, events, handleMessage }
+})

@@ -1,0 +1,37 @@
+/* ─── Design System Tokens ─────────────────────────────────────── */
+:root {
+  --bg: #f2f4f5;
+  --sidebar-bg: #e3e6e8;
+  --card-bg: #ffffff;
+  --card-alt: #eaecee;
+  --text: #1C1C1A;
+  --text-secondary: #5C5C58;
+  --text-muted: #9A9A96;
+  --border: rgba(0,0,0,0.08);
+  --border-strong: rgba(0,0,0,0.12);
+  --green: #1D9E75;
+  --green-light: #178a63;
+  --amber: #EF9F27;
+  --red: #E24B4A;
+  --blue: #2470ba;
+  --blue-raw: #378ADD;
+  --radius-card: 6px;
+  --radius-badge: 3px;
+  --radius-insight: 5px;
+  --sidebar-width: 236px;
+  --topbar-height: 56px;
+}
+
+html.dark {
+  --bg: #272725;
+  --sidebar-bg: #2F2F2D;
+  --card-bg: #323230;
+  --card-alt: #3A3A38;
+  --text: #EDECEA;
+  --text-secondary: #8E8E87;
+  --text-muted: #9A9A96;
+  --border: rgba(255,255,255,0.07);
+  --border-strong: rgba(255,255,255,0.13);
+  --green-light: #5DCAA5;
+  --blue: #378ADD;
+}
