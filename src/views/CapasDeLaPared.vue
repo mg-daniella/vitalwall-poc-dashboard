@@ -40,7 +40,7 @@ const layerMetrics = computed(() => {
 </script>
 
 <template>
-  <div class="capas-layout">
+  <div class="view-inner capas-layout">
 
     <!-- SVG Building -->
     <div class="building-panel card">

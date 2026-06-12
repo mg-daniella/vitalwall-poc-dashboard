@@ -56,7 +56,7 @@ const humInRange = computed(() => {
 </script>
 
 <template>
-  <div class="confort">
+  <div class="view-inner confort">
 
     <div class="confort-layout">
 

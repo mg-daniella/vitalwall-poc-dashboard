@@ -34,7 +34,7 @@ function uptimePct(status) {
 </script>
 
 <template>
-  <div class="salud">
+  <div class="view-inner salud">
 
     <ErrorState
       v-if="health.error"

@@ -57,7 +57,7 @@ function variantFor(type) {
 </script>
 
 <template>
-  <div class="cerebro">
+  <div class="view-inner cerebro">
 
     <!-- Filters bar -->
     <div class="filters-bar">

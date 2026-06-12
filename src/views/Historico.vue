@@ -66,7 +66,7 @@ function toLabels(arr) {
 </script>
 
 <template>
-  <div class="historico">
+  <div class="view-inner historico">
 
     <!-- Period selector -->
     <div class="period-bar">

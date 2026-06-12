@@ -23,7 +23,7 @@ const statusGrid = [
 </script>
 
 <template>
-  <div class="alertas">
+  <div class="view-inner alertas">
 
     <!-- Active alerts (danger) -->
     <section v-if="active.length">

@@ -23,7 +23,7 @@ const donutColors = ['#EF9F27', '#1D9E75', '#378ADD']
 </script>
 
 <template>
-  <div class="red">
+  <div class="view-inner red">
 
     <div class="red-top">
       <!-- Donut -->

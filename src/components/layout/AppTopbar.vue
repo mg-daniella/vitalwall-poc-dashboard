@@ -1,9 +1,8 @@
 <script setup>
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
-import { useAlertsStore } from '@/stores/alerts'
+import { useAlertsStore }    from '@/stores/alerts'
 import { useWebSocketStore } from '@/stores/websocket'
-import StatusBadge from '@/components/ui/StatusBadge.vue'
 
 const route   = useRoute()
 const alerts  = useAlertsStore()
@@ -27,59 +26,56 @@ const viewMeta = {
 }
 
 const current = computed(() => viewMeta[route.path] || { title: 'Dashboard', sub: '' })
-const now = computed(() => new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }))
+const nowStr  = computed(() => new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }))
 </script>
 
 <template>
   <header class="topbar">
-    <div class="topbar-left">
-      <h1 class="topbar-title">{{ current.title }}</h1>
-      <span class="topbar-sub">{{ current.sub }}</span>
+    <div>
+      <div class="topbar-title">{{ current.title }}</div>
+      <div class="topbar-sub">{{ current.sub }}</div>
     </div>
     <div class="topbar-right">
-      <StatusBadge v-if="wsStore.connected" label="En vivo" variant="green" />
-      <StatusBadge v-else label="Offline" variant="gray" />
-      <StatusBadge v-if="alerts.activeCount > 0" :label="`${alerts.activeCount} alertas`" variant="amber" />
-      <span class="topbar-time">{{ now }}</span>
+      <span class="topbar-tag" :class="wsStore.connected ? 'topbar-tag-ok' : 'topbar-tag'">
+        {{ wsStore.connected ? '● En vivo' : '○ Offline' }}
+      </span>
+      <span v-if="alerts.activeCount > 0" class="topbar-tag topbar-tag-warn">
+        ⚠ {{ alerts.activeCount }} alertas
+      </span>
+      <span class="topbar-tag">{{ nowStr }}</span>
     </div>
   </header>
 </template>
 
 <style scoped>
 .topbar {
-  height: var(--topbar-height);
+  padding: 13px 30px;
   background: var(--card-bg);
   border-bottom: 1px solid var(--border);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 24px;
-  position: sticky;
-  top: 0;
-  z-index: 10;
+  display: flex; align-items: center; justify-content: space-between;
   flex-shrink: 0;
 }
-.topbar-left { display: flex; align-items: baseline; gap: 10px; }
 .topbar-title {
-  font-size: 15px;
-  font-weight: 700;
-  color: var(--text);
-  letter-spacing: -0.2px;
+  font-size: 24px; font-weight: 700; letter-spacing: -0.3px;
+  color: var(--text); line-height: 1;
 }
-.topbar-sub {
-  font-size: 12px;
-  color: var(--text-muted);
-  font-weight: 400;
+.topbar-sub { font-size: 12px; font-weight: 400; color: var(--text-secondary); margin-top: 3px; }
+.topbar-right { display: flex; gap: 8px; align-items: center; }
+.topbar-tag {
+  font-size: 10px; font-weight: 600; letter-spacing: 0.8px; text-transform: uppercase;
+  color: var(--text-muted); background: var(--card-alt);
+  padding: 4px 10px; border-radius: 3px; border: 1px solid var(--border);
 }
-.topbar-right {
-  display: flex;
-  align-items: center;
-  gap: 8px;
+.topbar-tag-ok {
+  color: var(--green-light); border-color: rgba(29,158,117,0.3);
+  background: rgba(29,158,117,0.07);
 }
-.topbar-time {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--text-muted);
-  font-variant-numeric: tabular-nums;
+.topbar-tag-warn {
+  color: #854F0B; border-color: rgba(239,159,39,0.3);
+  background: rgba(239,159,39,0.07);
+}
+.topbar-tag-danger {
+  color: #A32D2D; border-color: rgba(226,75,74,0.3);
+  background: rgba(226,75,74,0.07);
 }
 </style>

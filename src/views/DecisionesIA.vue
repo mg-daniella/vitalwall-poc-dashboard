@@ -68,7 +68,7 @@ const scenarios = [
 </script>
 
 <template>
-  <div class="decisiones">
+  <div class="view-inner decisiones">
 
     <!-- Override banner -->
     <div class="override-banner">

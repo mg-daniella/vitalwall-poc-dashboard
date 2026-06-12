@@ -46,7 +46,7 @@ function sourceVariant(src) {
 </script>
 
 <template>
-  <div class="log-layout">
+  <div class="view-inner log-layout">
 
     <!-- Log column -->
     <div class="log-col">

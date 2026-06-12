@@ -27,7 +27,7 @@ const dailyCaptureLiters = computed(() => (sensors.water_level.value * 12.5).toF
 </script>
 
 <template>
-  <div class="agua">
+  <div class="view-inner agua">
 
     <div class="metrics-grid">
       <MetricCard

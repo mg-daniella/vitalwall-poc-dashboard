@@ -29,7 +29,7 @@ const pollutants = computed(() => [
 </script>
 
 <template>
-  <div class="aire">
+  <div class="view-inner aire">
 
     <!-- AQI hero -->
     <div class="aqi-hero card">

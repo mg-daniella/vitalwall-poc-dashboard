@@ -50,7 +50,7 @@ function relativeTime(iso) {
 </script>
 
 <template>
-  <div class="panel-general">
+  <div class="view-inner panel-general">
 
     <!-- 6 metric cards -->
     <section class="metrics-grid">

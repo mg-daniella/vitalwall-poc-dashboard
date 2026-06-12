@@ -46,7 +46,6 @@ const toasts = useToastsStore()
   max-width: 340px;
   cursor: pointer;
   pointer-events: all;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.15);
 }
 .toast.error   { background: var(--red);   color: #fff; }
 .toast.warning { background: var(--amber); color: #fff; }

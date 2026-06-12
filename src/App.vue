@@ -12,38 +12,30 @@ import { useSystemHealthStore } from '@/stores/systemHealth'
 import { useWebSocket }         from '@/composables/useWebSocket'
 import { useToastsStore }       from '@/stores/toasts'
 
-const sensors  = useSensorsStore()
-const env      = useEnvironmentStore()
-const metrics  = useMetricsStore()
-const air      = useAirQualityStore()
-const rules    = useRulesStore()
-const health   = useSystemHealthStore()
-const toasts   = useToastsStore()
+const sensors = useSensorsStore()
+const env     = useEnvironmentStore()
+const metrics = useMetricsStore()
+const air     = useAirQualityStore()
+const rules   = useRulesStore()
+const health  = useSystemHealthStore()
+const toasts  = useToastsStore()
 const { connect } = useWebSocket()
 
 onMounted(async () => {
-  // Blocking critical path — app renders skeleton until both resolve
   const [sensorsResult, healthResult] = await Promise.allSettled([
     sensors.fetchInitial(),
     health.fetchHealth()
   ])
-
-  // Surface fetch failures as toasts so the user knows even if they're not
-  // on the affected view
   if (sensorsResult.status === 'rejected' || sensors.error) {
     toasts.error('No se pudieron cargar los sensores. ' + (sensors.error?.message || ''))
   }
   if (healthResult.status === 'rejected' || health.error) {
     toasts.error('No se pudo verificar el estado del sistema. ' + (health.error?.message || ''))
   }
-
-  // Progressive — load in background, individual views show their own error states
   env.fetchInitial().catch(() => {})
   metrics.fetchInitial().catch(() => {})
   air.fetchInitial().catch(() => {})
   rules.fetchRules().catch(() => {})
-
-  // Start WebSocket
   connect()
 })
 </script>
@@ -51,35 +43,65 @@ onMounted(async () => {
 <template>
   <div class="app-layout">
     <AppSidebar />
-    <div class="app-main">
+    <div class="main-area">
       <AppTopbar />
-      <main class="app-content">
+      <div class="view-content">
         <RouterView v-slot="{ Component }">
           <Transition name="fade" mode="out-in">
             <component :is="Component" />
           </Transition>
         </RouterView>
-      </main>
+      </div>
     </div>
     <ToastNotifications />
   </div>
 </template>
 
-<style scoped>
+<style>
+/* ─── Global layout ──────────────────────────────────────────── */
 .app-layout {
   display: flex;
-  min-height: 100vh;
+  height: 100vh;
+  overflow: hidden;
+  background: var(--bg);
+  font-family: var(--font);
 }
-.app-main {
+.main-area {
   flex: 1;
   display: flex;
   flex-direction: column;
-  min-width: 0;
   overflow: hidden;
+  background: var(--bg);
 }
-.app-content {
+.view-content {
   flex: 1;
-  padding: 20px 24px;
   overflow-y: auto;
+  scrollbar-width: thin;
 }
+.view-content::-webkit-scrollbar { width: 4px; }
+.view-content::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 2px; }
+
+/* ─── View inner padding (used by all views) ─────────────────── */
+.view-inner {
+  padding: var(--main-pt) var(--main-ph);
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+/* ─── Standard grids ─────────────────────────────────────────── */
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(155px, 1fr));
+  gap: 10px;
+}
+.data-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 14px;
+}
+
+/* ─── Route fade transition ──────────────────────────────────── */
+.fade-enter-active, .fade-leave-active { transition: opacity 0.15s ease; }
+.fade-enter-from, .fade-leave-to { opacity: 0; }
 </style>

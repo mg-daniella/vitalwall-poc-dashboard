@@ -29,7 +29,7 @@ const monitoredSources = [
 </script>
 
 <template>
-  <div class="emergencias">
+  <div class="view-inner emergencias">
 
     <InsightBox
       text="Sin emergencias externas activas. Todos los sistemas de monitorización operativos. Última verificación: hace menos de 5 minutos."
