@@ -1,5 +1,5 @@
 <script setup>
-import { computed } from 'vue'
+import { computed, onMounted } from 'vue'
 import { useEnvironmentStore } from '@/stores/environment'
 import InsightBox   from '@/components/ui/InsightBox.vue'
 import StatusDot    from '@/components/ui/StatusDot.vue'
@@ -9,6 +9,10 @@ import DataCard     from '@/components/ui/DataCard.vue'
 import SkeletonCard from '@/components/ui/SkeletonCard.vue'
 
 const env = useEnvironmentStore()
+
+onMounted(() => {
+  console.log('[ClimaYPrevision] mounted — loading:', env.loading, '| current keys:', Object.keys(env.current || {}), '| forecast len:', (env.forecast || []).length)
+})
 
 // Safe accessors — never throw if store is still loading
 const current  = computed(() => env.current  || {})
@@ -53,6 +57,12 @@ const fwiPct = computed(() => Math.min(((current.value.fire_risk_fwi?.value ?? 0
 
 <template>
   <div class="view-inner">
+
+    <!-- Error banner (shown when API fails) -->
+    <div v-if="env.error" class="env-error">
+      ⚠ Error al cargar datos climáticos: {{ env.error.message }}
+      <button @click="env.retry()" class="env-retry">Reintentar</button>
+    </div>
 
     <!-- AI strip -->
     <InsightBox
@@ -186,4 +196,14 @@ const fwiPct = computed(() => Math.min(((current.value.fire_risk_fwi?.value ?? 0
 .card-big.danger  { color: var(--red); }
 .card-unit { font-size: 13px; font-weight: 400; color: var(--text-secondary); margin-left: 2px; }
 .card-note { font-size: 10px; color: var(--text-muted); line-height: 1.5; }
+
+.env-error {
+  background: rgba(226,75,74,0.08); border: 1px solid rgba(226,75,74,0.2);
+  border-radius: 5px; padding: 10px 14px; font-size: 12px; color: var(--red);
+  display: flex; align-items: center; gap: 12px;
+}
+.env-retry {
+  background: var(--red); color: #fff; border: none; border-radius: 3px;
+  padding: 4px 10px; font-size: 11px; font-weight: 600; cursor: pointer;
+}
 </style>

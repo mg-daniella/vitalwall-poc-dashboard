@@ -8,6 +8,17 @@ const USE_DUMMY = import.meta.env.VITE_USE_DUMMY === 'true'
 const API_URL   = import.meta.env.VITE_API_URL
 const API_KEY   = import.meta.env.VITE_API_KEY
 
+// ─── Request deduplication ───────────────────────────────────────
+// Multiple stores call getInitialData() simultaneously; cache the in-flight
+// promise so /api/data is only fetched once per call cycle (TTL = 2s).
+const _inFlight = {}
+function dedupFetch(key, fn) {
+  if (_inFlight[key]) return _inFlight[key]
+  const p = fn().finally(() => { delete _inFlight[key] })
+  _inFlight[key] = p
+  return p
+}
+
 // ─── Retry config ────────────────────────────────────────────────
 const MAX_RETRIES   = 3
 const INITIAL_DELAY = 800
@@ -73,11 +84,12 @@ function normalizeEnvironmental(env) {
   return {
     current:  env.current || {},
     forecast: (env.forecast || []).map(f => ({
-      hour:       f.timestamp ? f.timestamp.split('T')[1]?.slice(0, 5) : (f.hour || ''),
-      temp:       f.temperature  ?? f.temp       ?? null,
-      feels_like: f.feels_like   ?? f.temperature ?? null,
-      humidity:   f.humidity     ?? null,
-      wind_kmh:   f.wind_kmh     ?? null
+      hour:               f.timestamp ? f.timestamp.split('T')[1]?.slice(0, 5) : (f.hour || ''),
+      temp:               f.temperature        ?? f.temp       ?? null,
+      feels_like:         f.feels_like         ?? f.temperature ?? null,
+      humidity:           f.humidity           ?? null,
+      wind_kmh:           f.wind_kmh           ?? null,
+      precipitation_prob: f.precipitation_prob ?? null
     }))
   }
 }
@@ -157,7 +169,7 @@ export function useApi() {
 
   return {
     async getInitialData() {
-      const raw = await request('/api/data')
+      const raw = await dedupFetch('initial', () => request('/api/data'))
       return USE_DUMMY ? raw : normalizeInitialData(raw)
     },
 

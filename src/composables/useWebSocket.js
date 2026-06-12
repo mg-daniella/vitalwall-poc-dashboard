@@ -99,28 +99,42 @@ export function useWebSocket() {
   function handleMessage(msg) {
     useWebSocketStore().handleMessage(msg)
 
+    // Real API uses msg.payload; dummy simulation uses msg.data — support both
+    const data = msg.payload ?? msg.data
+
     switch (msg.type) {
       case 'sensor_update':
-        useSensorsStore().updateFromWebSocket(msg.data)
+        if (data) useSensorsStore().updateFromWebSocket(data)
         break
       case 'environmental_update':
-        useEnvironmentStore().updateFromWebSocket(msg.data)
+        if (data) useEnvironmentStore().updateFromWebSocket(data)
         break
       case 'air_quality_update':
+        // Re-fetch full air quality on any update signal
         useAirQualityStore().fetchInitial().catch(() => {})
         break
       case 'rule_update':
         useRulesStore().fetchRules().catch(() => {})
         break
       case 'metrics_update':
-        useMetricsStore().updateFromWebSocket(msg.data)
+        if (data) useMetricsStore().updateFromWebSocket(data)
         break
       case 'alert':
-        useAlertsStore().addAlert(msg.data)
+        if (data) useAlertsStore().addAlert(data)
         break
       case 'health_update':
-        useSystemHealthStore().updateFromWebSocket(msg.data)
+        // Real WS payload: {sensor_online, clients, uptime_seconds}
+        // Transform to the shape systemHealthStore.updateFromWebSocket expects
+        if (data) {
+          const wsHealth = {}
+          if ('sensor_online' in data) {
+            wsHealth.sensors = { status: data.sensor_online ? 'ok' : 'danger', last_seen: data.last_seen || null }
+          }
+          if (data.sensors || data.apis) Object.assign(wsHealth, data) // passthrough if already shaped
+          useSystemHealthStore().updateFromWebSocket(wsHealth)
+        }
         break
+      // 'connected' — server handshake confirmation, no action needed
     }
   }
 

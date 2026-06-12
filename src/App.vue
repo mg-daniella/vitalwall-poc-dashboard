@@ -1,5 +1,6 @@
 <script setup>
 import { onMounted } from 'vue'
+import { useRoute }   from 'vue-router'
 import AppSidebar          from '@/components/layout/AppSidebar.vue'
 import AppTopbar           from '@/components/layout/AppTopbar.vue'
 import ToastNotifications  from '@/components/ui/ToastNotifications.vue'
@@ -20,18 +21,12 @@ const rules   = useRulesStore()
 const health  = useSystemHealthStore()
 const toasts  = useToastsStore()
 const { connect } = useWebSocket()
+const route   = useRoute()
 
-onMounted(async () => {
-  const [sensorsResult, healthResult] = await Promise.allSettled([
-    sensors.fetchInitial(),
-    health.fetchHealth()
-  ])
-  if (sensorsResult.status === 'rejected' || sensors.error) {
-    toasts.error('No se pudieron cargar los sensores. ' + (sensors.error?.message || ''))
-  }
-  if (healthResult.status === 'rejected' || health.error) {
-    toasts.error('No se pudo verificar el estado del sistema. ' + (health.error?.message || ''))
-  }
+onMounted(() => {
+  // All stores fetch in parallel — no store waits for another
+  sensors.fetchInitial().catch(() => {})
+  health.fetchHealth().catch(() => {})
   env.fetchInitial().catch(() => {})
   metrics.fetchInitial().catch(() => {})
   air.fetchInitial().catch(() => {})
@@ -47,8 +42,8 @@ onMounted(async () => {
       <AppTopbar />
       <div class="view-content">
         <RouterView v-slot="{ Component }">
-          <Transition name="fade" mode="out-in">
-            <component :is="Component" />
+          <Transition name="fade" mode="out-in" appear>
+            <component :is="Component" :key="route.path" />
           </Transition>
         </RouterView>
       </div>
@@ -104,4 +99,5 @@ onMounted(async () => {
 /* ─── Route fade transition ──────────────────────────────────── */
 .fade-enter-active, .fade-leave-active { transition: opacity 0.15s ease; }
 .fade-enter-from, .fade-leave-to { opacity: 0; }
+.fade-enter-to, .fade-leave-from { opacity: 1; }
 </style>

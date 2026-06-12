@@ -20,14 +20,16 @@ export const useWebSocketStore = defineStore('websocket', () => {
   }
 
   function formatMessage(msg) {
+    const d = msg.payload ?? msg.data ?? {}
     switch (msg.type) {
       case 'sensor_update':        return `Sensores actualizados`
       case 'environmental_update': return `Entorno actualizado`
       case 'air_quality_update':   return `Calidad del aire actualizada`
-      case 'rule_update':          return `Regla actualizada: ${msg.data?.title || ''}`
+      case 'rule_update':          return `Regla actualizada: ${d.title || ''}`
       case 'metrics_update':       return `Métricas recalculadas`
-      case 'alert':                return `Alerta: ${msg.data?.title || ''}`
-      case 'health_update':        return `Estado del sistema actualizado`
+      case 'alert':                return `Alerta: ${d.title || ''}`
+      case 'health_update':        return `Estado del sistema — sensores: ${d.sensor_online ? '✓' : '✗'}`
+      case 'connected':            return d.message || 'WebSocket conectado'
       default:                     return JSON.stringify(msg).slice(0, 80)
     }
   }
