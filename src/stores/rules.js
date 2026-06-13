@@ -13,6 +13,7 @@ export const useRulesStore = defineStore('rules', () => {
   const activeRules    = computed(() => rules.value.filter(r => r.status === 'active'))
   const pendingRules   = computed(() => rules.value.filter(r => r.status === 'pending'))
   const completedRules = computed(() => rules.value.filter(r => r.status === 'completed'))
+  const recentRules    = computed(() => completedRules.value.slice(0, 5))
   const totalCount     = computed(() => rules.value.length)
 
   async function fetchRules() {
@@ -69,6 +70,22 @@ export const useRulesStore = defineStore('rules', () => {
     }
   }
 
+  function handleRuleUpdate(ruleData) {
+    if (!ruleData?.id) return
+    const idx = rules.value.findIndex(r => r.id === ruleData.id)
+    if (idx !== -1) {
+      rules.value[idx] = { ...rules.value[idx], ...ruleData }
+    } else {
+      rules.value.unshift(ruleData)
+    }
+    // Cap completed rules at 5
+    const completed = rules.value.filter(r => r.status === 'completed')
+    if (completed.length > 5) {
+      const toRemove = new Set(completed.slice(5).map(r => r.id))
+      rules.value = rules.value.filter(r => !toRemove.has(r.id))
+    }
+  }
+
   async function overrideRule(id, payload) {
     actionError.value = null
     const api = useApi()
@@ -81,5 +98,5 @@ export const useRulesStore = defineStore('rules', () => {
     }
   }
 
-  return { rules, loading, error, retrying, actionError, activeRules, pendingRules, completedRules, totalCount, fetchRules, retry, fetchHistory, toggleRule, overrideRule }
+  return { rules, loading, error, retrying, actionError, activeRules, pendingRules, completedRules, recentRules, totalCount, fetchRules, retry, fetchHistory, toggleRule, overrideRule, handleRuleUpdate }
 })

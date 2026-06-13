@@ -1,5 +1,6 @@
 // WebSocket composable with exponential backoff reconnection + error reporting
 import { ref } from 'vue'
+import { dummyRules } from '@/data/dummy'
 import { useSensorsStore }     from '@/stores/sensors'
 import { useEnvironmentStore } from '@/stores/environment'
 import { useAirQualityStore }  from '@/stores/airQuality'
@@ -114,7 +115,8 @@ export function useWebSocket() {
         useAirQualityStore().fetchInitial().catch(() => {})
         break
       case 'rule_update':
-        useRulesStore().fetchRules().catch(() => {})
+        if (data?.id) useRulesStore().handleRuleUpdate(data)
+        else useRulesStore().fetchRules().catch(() => {})
         break
       case 'metrics_update':
         if (data) useMetricsStore().updateFromWebSocket(data)
@@ -139,10 +141,42 @@ export function useWebSocket() {
   }
 
   // ─── Dummy simulation ────────────────────────────────────────
-  let dummyInterval = null
+  let sensorInterval = null
+  let ruleInterval   = null
+
+  // Synthetic rule events that cycle through to simulate live AI decisions
+  const RULE_SIM_EVENTS = [
+    {
+      id: 'sim-rule-a',
+      title: 'Precarga batería preventiva',
+      description: 'Previsión de baja radiación solar mañana — batería precargada al 90%',
+      status: 'pending',
+      layer: 'energia', source: 'IA', duration: '2h',
+      triggered_at: null
+    },
+    { ...dummyRules[0], triggered_at: null },
+    {
+      id: 'sim-rule-b',
+      title: 'Activación lamas emergencia UV',
+      description: 'Índice UV superó umbral 8 — lamas exteriores al 100%',
+      status: 'active',
+      layer: 'proteccion_solar', source: 'IA', duration: '45m',
+      triggered_at: null
+    },
+    { ...dummyRules[1], triggered_at: null },
+    {
+      id: 'sim-rule-c',
+      title: 'Riego suspendido por viento',
+      description: 'Viento > 15 km/h detectado — riego suspendido hasta calma',
+      status: 'completed',
+      layer: 'agua', source: 'IA', duration: '1h',
+      triggered_at: null, completed_at: null
+    }
+  ]
+  let ruleSimIdx = 0
 
   function startDummySimulation() {
-    dummyInterval = setInterval(() => {
+    sensorInterval = setInterval(() => {
       const jitter = (base, range) => +(base + (Math.random() - 0.5) * range * 2).toFixed(1)
       handleMessage({
         type: 'sensor_update',
@@ -154,11 +188,27 @@ export function useWebSocket() {
         }
       })
     }, 8000)
+
+    ruleInterval = setInterval(() => {
+      const base = RULE_SIM_EVENTS[ruleSimIdx % RULE_SIM_EVENTS.length]
+      ruleSimIdx++
+      const now = new Date().toISOString()
+      handleMessage({
+        type: 'rule_update',
+        data: {
+          ...base,
+          triggered_at: base.triggered_at ?? now,
+          completed_at: base.completed_at !== undefined ? now : undefined
+        }
+      })
+    }, 15000)
   }
 
   function stopDummySimulation() {
-    clearInterval(dummyInterval)
-    dummyInterval = null
+    clearInterval(sensorInterval)
+    clearInterval(ruleInterval)
+    sensorInterval = null
+    ruleInterval   = null
   }
 
   return { connected, connect, disconnect }
