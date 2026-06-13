@@ -42,7 +42,7 @@ onMounted(() => {
       <AppTopbar />
       <div class="view-content">
         <RouterView v-slot="{ Component }">
-          <Transition name="fade" appear>
+          <Transition name="fade" mode="out-in">
             <component :is="Component" :key="route.path" />
           </Transition>
         </RouterView>
@@ -97,8 +97,12 @@ onMounted(() => {
 }
 
 /* ─── Route fade transition ──────────────────────────────────── */
-.fade-enter-active { transition: opacity 0.1s ease; }
-.fade-leave-active { transition: opacity 0.05s ease; }
-.fade-enter-from, .fade-leave-to { opacity: 0; }
-.fade-enter-to, .fade-leave-from { opacity: 1; }
+/* Leave happens instantly (0ms) so it can never be interrupted.
+   Enter fades in over 80ms. mode="out-in" ensures only one component
+   exists in the DOM at a time — no stacking, no blank-page accumulation. */
+.fade-leave-active { transition: none; }
+.fade-leave-to     { opacity: 0; }
+.fade-enter-active { transition: opacity 0.08s ease; }
+.fade-enter-from   { opacity: 0; }
+.fade-enter-to     { opacity: 1; }
 </style>
