@@ -57,11 +57,10 @@ onMounted(buildChart)
 
 watch(() => props.datasets, (newDs) => {
   if (!chart) return
-  chart.data.datasets = newDs
-  chart.update()
+  try { chart.data.datasets = newDs; chart.update() } catch {}
 }, { deep: true })
 
-onBeforeUnmount(() => { chart?.destroy() })
+onBeforeUnmount(() => { chart?.destroy(); chart = null })
 </script>
 
 <template>

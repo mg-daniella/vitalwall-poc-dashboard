@@ -97,10 +97,10 @@ onMounted(() => {
 }
 
 /* ─── Route fade transition ──────────────────────────────────── */
-/* Leave happens instantly (0ms) so it can never be interrupted.
-   Enter fades in over 80ms. mode="out-in" ensures only one component
-   exists in the DOM at a time — no stacking, no blank-page accumulation. */
-.fade-leave-active { transition: none; }
+/* Both transitions must have a non-zero duration so transitionend always fires.
+   Vue mode="out-in" waits for transitionend before mounting the next component —
+   if it never fires (e.g. transition:none), all subsequent navigation is dead. */
+.fade-leave-active { transition: opacity 0.05s ease; }
 .fade-leave-to     { opacity: 0; }
 .fade-enter-active { transition: opacity 0.08s ease; }
 .fade-enter-from   { opacity: 0; }
