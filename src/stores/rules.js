@@ -13,6 +13,7 @@ export const useRulesStore = defineStore('rules', () => {
   const activeRules    = computed(() => rules.value.filter(r => r.status === 'active'))
   const pendingRules   = computed(() => rules.value.filter(r => r.status === 'pending'))
   const completedRules = computed(() => rules.value.filter(r => r.status === 'completed'))
+  const recentRules    = computed(() => completedRules.value.slice(0, 5))
   const totalCount     = computed(() => rules.value.length)
 
   async function fetchRules() {
@@ -69,6 +70,38 @@ export const useRulesStore = defineStore('rules', () => {
     }
   }
 
+  function normalizeRule(r) {
+    return {
+      id:           String(r.id),
+      title:        r.title        || r.description || `Regla #${r.id}`,
+      description:  r.condition    || r.description || '',
+      status:       r.status,
+      layer:        r.affected_layer || r.layer    || '',
+      source:       r.trigger_source || r.source   || 'IA',
+      duration:     r.duration_hours != null ? `${r.duration_hours}h` : (r.duration || ''),
+      triggered_at: r.created_at    || r.triggered_at  || null,
+      completed_at: r.updated_at    || r.completed_at  || null,
+      tags:         r.tags          || []
+    }
+  }
+
+  function handleRuleUpdate(ruleData) {
+    if (!ruleData?.id) return
+    const normalized = normalizeRule(ruleData)
+    const idx = rules.value.findIndex(r => r.id === normalized.id)
+    if (idx !== -1) {
+      rules.value[idx] = { ...rules.value[idx], ...normalized }
+    } else {
+      rules.value.unshift(normalized)
+    }
+    // Cap completed rules at 5
+    const completed = rules.value.filter(r => r.status === 'completed')
+    if (completed.length > 5) {
+      const toRemove = new Set(completed.slice(5).map(r => r.id))
+      rules.value = rules.value.filter(r => !toRemove.has(r.id))
+    }
+  }
+
   async function overrideRule(id, payload) {
     actionError.value = null
     const api = useApi()
@@ -81,5 +114,5 @@ export const useRulesStore = defineStore('rules', () => {
     }
   }
 
-  return { rules, loading, error, retrying, actionError, activeRules, pendingRules, completedRules, totalCount, fetchRules, retry, fetchHistory, toggleRule, overrideRule }
+  return { rules, loading, error, retrying, actionError, activeRules, pendingRules, completedRules, recentRules, totalCount, fetchRules, retry, fetchHistory, toggleRule, overrideRule, handleRuleUpdate }
 })

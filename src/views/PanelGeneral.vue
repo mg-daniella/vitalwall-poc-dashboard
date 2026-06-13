@@ -5,13 +5,14 @@ import { useEnvironmentStore }  from '@/stores/environment'
 import { useMetricsStore }      from '@/stores/metrics'
 import { useRulesStore }        from '@/stores/rules'
 import { useSystemHealthStore } from '@/stores/systemHealth'
-import MetricCard   from '@/components/ui/MetricCard.vue'
-import DataCard     from '@/components/ui/DataCard.vue'
-import InsightBox   from '@/components/ui/InsightBox.vue'
-import StatusDot    from '@/components/ui/StatusDot.vue'
-import RuleRow      from '@/components/ui/RuleRow.vue'
-import SkeletonCard from '@/components/ui/SkeletonCard.vue'
-import ErrorState   from '@/components/ui/ErrorState.vue'
+import MetricCard      from '@/components/ui/MetricCard.vue'
+import DataCard        from '@/components/ui/DataCard.vue'
+import InsightBox      from '@/components/ui/InsightBox.vue'
+import StatusDot       from '@/components/ui/StatusDot.vue'
+import RuleRow         from '@/components/ui/RuleRow.vue'
+import SkeletonCard    from '@/components/ui/SkeletonCard.vue'
+import ErrorState      from '@/components/ui/ErrorState.vue'
+import AiDecisionsFeed from '@/components/AiDecisionsFeed.vue'
 
 const sensors = useSensorsStore()
 const env     = useEnvironmentStore()
@@ -155,6 +156,9 @@ function relativeTime(iso) {
         </template>
       </DataCard>
     </section>
+
+    <!-- AI Decisions Feed -->
+    <AiDecisionsFeed />
 
     <!-- Contexto ambiental full-width -->
     <DataCard title="Contexto Ambiental">
