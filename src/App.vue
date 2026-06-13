@@ -1,6 +1,5 @@
 <script setup>
 import { onMounted, onUnmounted } from 'vue'
-import { useRoute }     from 'vue-router'
 import AppSidebar          from '@/components/layout/AppSidebar.vue'
 import AppTopbar           from '@/components/layout/AppTopbar.vue'
 import ToastNotifications  from '@/components/ui/ToastNotifications.vue'
@@ -21,30 +20,6 @@ const rules   = useRulesStore()
 const health  = useSystemHealthStore()
 const toasts  = useToastsStore()
 const { connect, disconnect } = useWebSocket()
-const route = useRoute()
-
-// JS-controlled transition — never depends on CSS transitionend events
-function onLeave(el, done) {
-  el.style.transition = 'opacity 0.04s ease'
-  el.style.opacity = '0'
-  setTimeout(done, 45)
-}
-function onEnter(el, done) {
-  el.style.opacity = '0'
-  el.style.transition = 'opacity 0.06s ease'
-  requestAnimationFrame(() => {
-    el.style.opacity = '1'
-    setTimeout(done, 70)
-  })
-}
-function onAfterEnter(el) {
-  el.style.transition = ''
-  el.style.opacity    = ''
-}
-function onAfterLeave(el) {
-  el.style.transition = ''
-  el.style.opacity    = ''
-}
 
 onMounted(() => {
   sensors.fetchInitial().catch(() => {})
@@ -67,18 +42,7 @@ onUnmounted(() => {
     <div class="main-area">
       <AppTopbar />
       <div class="view-content">
-        <RouterView v-slot="{ Component }">
-          <Transition
-            mode="out-in"
-            :css="false"
-            @leave="onLeave"
-            @enter="onEnter"
-            @after-enter="onAfterEnter"
-            @after-leave="onAfterLeave"
-          >
-            <component :is="Component" />
-          </Transition>
-        </RouterView>
+        <RouterView />
       </div>
     </div>
     <ToastNotifications />
@@ -129,5 +93,4 @@ onUnmounted(() => {
   gap: 14px;
 }
 
-/* Route transitions are JS-controlled (css:false) — no CSS rules needed */
 </style>

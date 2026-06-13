@@ -1,9 +1,9 @@
 <script setup>
 import { ref, onMounted, onBeforeUnmount, onActivated, onDeactivated, watch } from 'vue'
-import { Chart, LineController, LineElement, PointElement, LinearScale, TimeScale, Tooltip, Legend, Filler } from 'chart.js'
+import { Chart, CategoryScale, LineController, LineElement, PointElement, LinearScale, TimeScale, Tooltip, Legend, Filler } from 'chart.js'
 import 'chartjs-adapter-date-fns'
 
-Chart.register(LineController, LineElement, PointElement, LinearScale, TimeScale, Tooltip, Legend, Filler)
+Chart.register(CategoryScale, LineController, LineElement, PointElement, LinearScale, TimeScale, Tooltip, Legend, Filler)
 
 const props = defineProps({
   datasets: { type: Array, required: true },
@@ -29,7 +29,7 @@ function buildChart() {
     },
     options: {
       animation: false,
-      responsive: true,
+      responsive: false,
       maintainAspectRatio: false,
       interaction: { mode: 'index', intersect: false },
       plugins: {
