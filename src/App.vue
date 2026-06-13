@@ -25,16 +25,16 @@ const route = useRoute()
 
 // JS-controlled transition — never depends on CSS transitionend events
 function onLeave(el, done) {
-  el.style.transition = 'opacity 0.05s ease'
+  el.style.transition = 'opacity 0.04s ease'
   el.style.opacity = '0'
-  setTimeout(done, 60)          // call done() ourselves — guaranteed to fire
+  setTimeout(done, 45)
 }
 function onEnter(el, done) {
   el.style.opacity = '0'
-  el.style.transition = 'opacity 0.08s ease'
+  el.style.transition = 'opacity 0.06s ease'
   requestAnimationFrame(() => {
     el.style.opacity = '1'
-    setTimeout(done, 90)
+    setTimeout(done, 70)
   })
 }
 function onAfterEnter(el) {
@@ -73,7 +73,9 @@ onMounted(() => {
             @after-enter="onAfterEnter"
             @after-leave="onAfterLeave"
           >
-            <component :is="Component" :key="route.path" />
+            <KeepAlive>
+              <component :is="Component" />
+            </KeepAlive>
           </Transition>
         </RouterView>
       </div>

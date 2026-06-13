@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onMounted } from 'vue'
+import { computed } from 'vue'
 import { useEnvironmentStore } from '@/stores/environment'
 import InsightBox   from '@/components/ui/InsightBox.vue'
 import StatusDot    from '@/components/ui/StatusDot.vue'
@@ -10,9 +10,7 @@ import SkeletonCard from '@/components/ui/SkeletonCard.vue'
 
 const env = useEnvironmentStore()
 
-onMounted(() => {
-  console.log('[ClimaYPrevision] mounted — loading:', env.loading, '| current keys:', Object.keys(env.current || {}), '| forecast len:', (env.forecast || []).length)
-})
+onMounted(() => {})
 
 // Safe accessors — never throw if store is still loading
 const current  = computed(() => env.current  || {})
