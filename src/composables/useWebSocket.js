@@ -119,7 +119,16 @@ function handleMessage(msg) {
       if (data) useMetricsStore().updateFromWebSocket(data)
       break
     case 'alert':
-      if (data) useAlertsStore().addAlert(data)
+      if (data) useAlertsStore().addAlert({
+        id:          data.id        ?? `ws-${Date.now()}`,
+        code:        data.code      ?? 'UNKNOWN',
+        severity:    data.severity  ?? data.level ?? 'warning',
+        title:       data.title     ?? data.message ?? data.code ?? 'Alerta',
+        description: data.description ?? data.message ?? '',
+        source:      data.source    ?? 'sensor',
+        ai_action:   data.ai_action ?? '',
+        timestamp:   msg.timestamp  ?? new Date().toISOString()
+      })
       break
     case 'health_update':
       if (data) {
