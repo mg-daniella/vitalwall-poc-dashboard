@@ -2,17 +2,15 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 
 export const useUIStore = defineStore('ui', () => {
-  const darkMode    = ref(false)
-  const currentView = ref('PanelGeneral')
+  const stored  = localStorage.getItem('darkMode') === 'true'
+  const darkMode = ref(stored)
+  if (stored) document.documentElement.classList.add('dark')
 
   function toggleDarkMode() {
     darkMode.value = !darkMode.value
     document.documentElement.classList.toggle('dark', darkMode.value)
+    localStorage.setItem('darkMode', darkMode.value)
   }
 
-  function setView(viewName) {
-    currentView.value = viewName
-  }
-
-  return { darkMode, currentView, toggleDarkMode, setView }
+  return { darkMode, toggleDarkMode }
 })

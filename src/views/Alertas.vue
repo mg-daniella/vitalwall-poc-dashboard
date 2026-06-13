@@ -9,17 +9,23 @@ const active   = computed(() => alertsStore.alerts.filter(a => !a.acknowledged &
 const warnings = computed(() => alertsStore.alerts.filter(a => !a.acknowledged && a.severity === 'warning'))
 const resolved = computed(() => alertsStore.alerts.filter(a => a.acknowledged))
 
-function relativeTime(iso) {
-  const mins = Math.floor((Date.now() - new Date(iso)) / 60000)
-  return mins < 60 ? `hace ${mins}m` : `hace ${Math.floor(mins/60)}h`
-}
+import { useSystemHealthStore } from '@/stores/systemHealth'
+import { useSensorsStore }      from '@/stores/sensors'
+import { useRelativeTime }      from '@/composables/useRelativeTime'
+const health  = useSystemHealthStore()
+const sensors = useSensorsStore()
+const { relativeTime } = useRelativeTime()
 
-const statusGrid = [
-  { key: 'incendio', label: 'Incendio', icon: '🔥', status: 'ok' },
-  { key: 'agua',     label: 'Agua',     icon: '💧', status: 'ok' },
-  { key: 'sensores', label: 'Sensores', icon: '📡', status: 'ok' },
-  { key: 'bateria',  label: 'Batería',  icon: '🔋', status: 'ok' }
-]
+const statusGrid = computed(() => [
+  { key: 'incendio', label: 'Incendio', icon: '🔥',
+    status: alertsStore.alerts.some(a => !a.acknowledged && a.code?.includes('FIRE')) ? 'danger' : 'ok' },
+  { key: 'agua',     label: 'Agua',     icon: '💧',
+    status: sensors.water_level.status === 'danger' ? 'danger' : sensors.water_level.status === 'warning' ? 'warning' : 'ok' },
+  { key: 'sensores', label: 'Sensores', icon: '📡',
+    status: health.sensors.status },
+  { key: 'bateria',  label: 'Batería',  icon: '🔋',
+    status: sensors.battery_level.status === 'danger' ? 'danger' : sensors.battery_level.status === 'warning' ? 'warning' : 'ok' }
+])
 </script>
 
 <template>

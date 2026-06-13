@@ -44,7 +44,7 @@ const pollutants = computed(() => [
               :stroke="aqiLevel.color"
               stroke-width="10"
               stroke-linecap="round"
-              :stroke-dasharray="`${(air.aqi.value / 100) * 172} 172`"
+              :stroke-dasharray="`${(Math.min(air.aqi.value ?? 0, 100) / 100) * 172} 172`"
             />
             <text x="60" y="60" text-anchor="middle" font-size="22" font-weight="700" fill="var(--text)" font-family="Inter">
               {{ air.aqi.value ?? '—' }}

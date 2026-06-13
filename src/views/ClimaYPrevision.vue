@@ -10,8 +10,6 @@ import SkeletonCard from '@/components/ui/SkeletonCard.vue'
 
 const env = useEnvironmentStore()
 
-onMounted(() => {})
-
 // Safe accessors — never throw if store is still loading
 const current  = computed(() => env.current  || {})
 const forecast = computed(() => env.forecast || [])

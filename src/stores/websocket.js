@@ -2,10 +2,12 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { dummyWsEvents } from '@/data/dummy'
 
+const USE_DUMMY = import.meta.env.VITE_USE_DUMMY === 'true'
+
 export const useWebSocketStore = defineStore('websocket', () => {
   const connected  = ref(false)
   const last_event = ref(null)
-  const events     = ref([...dummyWsEvents])
+  const events     = ref(USE_DUMMY ? [...dummyWsEvents] : [])
 
   function handleMessage(message) {
     last_event.value = message

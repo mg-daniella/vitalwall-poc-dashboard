@@ -16,7 +16,7 @@ defineProps({
       <StatusDot :status="status" />
     </div>
     <div class="metric-value" :class="status">
-      {{ value !== null ? value : '—' }}
+      {{ value != null ? value : '—' }}
     </div>
     <div class="metric-unit">{{ unit }}</div>
     <div v-if="badge" class="metric-badge" :class="status">{{ badge }}</div>

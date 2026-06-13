@@ -14,7 +14,8 @@ const routes = [
   { path: '/salud',      name: 'SaludDelSistema',  component: () => import('@/views/SaludDelSistema.vue') },
   { path: '/alertas',    name: 'Alertas',           component: () => import('@/views/Alertas.vue') },
   { path: '/agua',       name: 'AguaYSequia',      component: () => import('@/views/AguaYSequia.vue') },
-  { path: '/emergencias',name: 'Emergencias',       component: () => import('@/views/Emergencias.vue') }
+  { path: '/emergencias',name: 'Emergencias',       component: () => import('@/views/Emergencias.vue') },
+  { path: '/:pathMatch(.*)*', redirect: '/' }
 ]
 
 export default createRouter({

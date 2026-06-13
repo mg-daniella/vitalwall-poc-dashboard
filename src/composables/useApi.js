@@ -83,7 +83,9 @@ function normalizeInitialData(raw) {
 function normalizeEnvironmental(env) {
   return {
     current:  env.current || {},
-    forecast: (env.forecast || []).map(f => ({
+    forecast: (env.forecast || [])
+      .filter(f => !f.timestamp || new Date(f.timestamp).getTime() > Date.now())
+      .map(f => ({
       hour:               f.timestamp ? f.timestamp.split('T')[1]?.slice(0, 5) : (f.hour || ''),
       temp:               f.temperature        ?? f.temp       ?? null,
       feels_like:         f.feels_like         ?? f.temperature ?? null,
@@ -96,10 +98,10 @@ function normalizeEnvironmental(env) {
 
 function normalizeMetrics(m) {
   return {
-    comfort_score:       m.comfort_score       || { value: null, status: 'ok' },
-    water_autonomy_days: m.water_autonomy_days  || { value: null, status: 'ok' },
-    energy_source:       m.energy_source        || { solar_pct: 0, battery_pct: 0, grid_pct: 0 },
-    savings_eur_today:   m.savings_eur_today    || { value: null, status: 'ok' }
+    comfort_score:       m.comfort_score       ?? { value: null, status: 'ok' },
+    water_autonomy_days: m.water_autonomy_days  ?? { value: null, status: 'ok' },
+    energy_source:       m.energy_source        ?? { solar_pct: 0, battery_pct: 0, grid_pct: 0 },
+    savings_eur_today:   m.savings_eur_today    ?? { value: null, status: 'ok' }
   }
 }
 
@@ -121,20 +123,16 @@ function normalizeRules(raw) {
 }
 
 function normalizeHistory(raw) {
-  // Real API: { period, count, data: [{ date, intervals: [{ time, temperature, humidity, water_level, battery_level }] }] }
-  // Expected: { temperature: [{t, v}], humidity: [{t,v}], water_level: [{t,v}] }
+  // Real API: { period, count, data: [{ timestamp, temperature, humidity, water_level, battery_level }] }
   const temperature = [], humidity = [], water_level = []
 
-  const days = Array.isArray(raw) ? raw : (raw.data || [])
-  days.forEach(day => {
-    const intervals = day.intervals || []
-    intervals.forEach(pt => {
-      const isoDate = day.date || new Date().toISOString().split('T')[0]
-      const isoTime = `${isoDate}T${pt.time || '00:00:00'}`
-      if (pt.temperature  != null) temperature.push({ t: isoTime, v: pt.temperature })
-      if (pt.humidity     != null) humidity.push(    { t: isoTime, v: pt.humidity })
-      if (pt.water_level  != null) water_level.push( { t: isoTime, v: pt.water_level })
-    })
+  const points = Array.isArray(raw) ? raw : (raw.data || [])
+  points.forEach(pt => {
+    const t = pt.timestamp || null
+    if (!t) return
+    if (pt.temperature != null) temperature.push({ t, v: pt.temperature })
+    if (pt.humidity    != null) humidity.push(   { t, v: pt.humidity })
+    if (pt.water_level != null) water_level.push({ t, v: pt.water_level })
   })
 
   return { temperature, humidity, water_level }

@@ -1,11 +1,13 @@
 <script setup>
 import { useSystemHealthStore } from '@/stores/systemHealth'
+import { useRelativeTime }      from '@/composables/useRelativeTime'
 import StatusDot   from '@/components/ui/StatusDot.vue'
 import StatusBadge from '@/components/ui/StatusBadge.vue'
 import InsightBox  from '@/components/ui/InsightBox.vue'
 import ErrorState  from '@/components/ui/ErrorState.vue'
 
 const health = useSystemHealthStore()
+const { relativeTime } = useRelativeTime()
 
 const apiLabels = {
   open_meteo: 'Open-Meteo',
@@ -22,14 +24,8 @@ const apiDesc = {
   aemet:      'Datos meteorológicos oficiales'
 }
 
-function relativeTime(iso) {
-  if (!iso) return 'N/A'
-  const mins = Math.floor((Date.now() - new Date(iso)) / 60000)
-  return mins < 1 ? 'ahora mismo' : `hace ${mins}m`
-}
-
 function uptimePct(status) {
-  return status === 'ok' ? '99.8%' : '72.0%'
+  return status === 'ok' ? 'Operativo' : 'Degradado'
 }
 </script>
 
@@ -46,7 +42,14 @@ function uptimePct(status) {
     />
     <InsightBox
       v-else
-      text="Todos los sistemas operativos. 5/5 APIs respondiendo correctamente. Sensores activos con latencia < 200ms."
+      :text="(() => {
+        const total = Object.keys(health.apis).length
+        const ok    = Object.values(health.apis).filter(a => a.status === 'ok').length
+        const sensor = health.sensors.status === 'ok' ? 'Sensor operativo.' : 'Sensor con problemas.'
+        return ok === total
+          ? `${sensor} ${ok}/${total} APIs respondiendo correctamente.`
+          : `${sensor} ${ok}/${total} APIs operativas — ${total - ok} fuente(s) con problemas.`
+      })()"
     />
 
     <!-- Sensors block -->

@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, onBeforeUnmount, watch } from 'vue'
+import { ref, onMounted, onBeforeUnmount, onActivated, onDeactivated, watch } from 'vue'
 import { Chart, LineController, LineElement, PointElement, LinearScale, TimeScale, Tooltip, Legend, Filler } from 'chart.js'
 import 'chartjs-adapter-date-fns'
 
@@ -28,6 +28,7 @@ function buildChart() {
       datasets: props.datasets
     },
     options: {
+      animation: false,
       responsive: true,
       maintainAspectRatio: false,
       interaction: { mode: 'index', intersect: false },
@@ -53,14 +54,27 @@ function buildChart() {
   })
 }
 
-onMounted(buildChart)
+function destroyChart() { chart?.destroy(); chart = null }
 
-watch(() => props.datasets, (newDs) => {
+function buildChartSafe() {
+  if (chart) return  // guard: never create two instances on the same canvas
+  buildChart()
+}
+
+onMounted(buildChartSafe)
+onBeforeUnmount(destroyChart)
+
+onActivated(buildChartSafe)
+onDeactivated(destroyChart)
+
+watch([() => props.datasets, () => props.labels], ([newDs, newLabels]) => {
   if (!chart) return
-  try { chart.data.datasets = newDs; chart.update() } catch {}
+  try {
+    chart.data.datasets = newDs
+    if (newLabels) chart.data.labels = newLabels
+    chart.update('none')
+  } catch {}
 }, { deep: true })
-
-onBeforeUnmount(() => { chart?.destroy(); chart = null })
 </script>
 
 <template>

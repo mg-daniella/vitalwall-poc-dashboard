@@ -77,9 +77,9 @@ const humInRange = computed(() => {
             </span>
           </div>
           <ProgressBar
-            :value="((sensors.temperature.value - tempMin) / (tempMax - tempMin)) * 100"
+            :value="sensors.temperature.value != null ? Math.max(0, Math.min(100, ((sensors.temperature.value - tempMin) / (tempMax - tempMin || 1)) * 100)) : 0"
             :color="tempInRange ? 'var(--green)' : 'var(--amber)'"
-            :right-label="`${sensors.temperature.value}°C`"
+            :right-label="sensors.temperature.value != null ? `${sensors.temperature.value}°C` : '—'"
           />
         </div>
 
@@ -98,9 +98,9 @@ const humInRange = computed(() => {
             </span>
           </div>
           <ProgressBar
-            :value="((sensors.humidity.value - humMin) / (humMax - humMin)) * 100"
+            :value="sensors.humidity.value != null ? Math.max(0, Math.min(100, ((sensors.humidity.value - humMin) / (humMax - humMin || 1)) * 100)) : 0"
             :color="humInRange ? 'var(--green)' : 'var(--amber)'"
-            :right-label="`${sensors.humidity.value}%`"
+            :right-label="sensors.humidity.value != null ? `${sensors.humidity.value}%` : '—'"
           />
         </div>
 

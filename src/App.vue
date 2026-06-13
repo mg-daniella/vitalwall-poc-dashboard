@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted } from 'vue'
+import { onMounted, onUnmounted } from 'vue'
 import { useRoute }     from 'vue-router'
 import AppSidebar          from '@/components/layout/AppSidebar.vue'
 import AppTopbar           from '@/components/layout/AppTopbar.vue'
@@ -20,7 +20,7 @@ const air     = useAirQualityStore()
 const rules   = useRulesStore()
 const health  = useSystemHealthStore()
 const toasts  = useToastsStore()
-const { connect } = useWebSocket()
+const { connect, disconnect } = useWebSocket()
 const route = useRoute()
 
 // JS-controlled transition — never depends on CSS transitionend events
@@ -47,7 +47,6 @@ function onAfterLeave(el) {
 }
 
 onMounted(() => {
-  // All stores fetch in parallel — no store waits for another
   sensors.fetchInitial().catch(() => {})
   health.fetchHealth().catch(() => {})
   env.fetchInitial().catch(() => {})
@@ -55,6 +54,10 @@ onMounted(() => {
   air.fetchInitial().catch(() => {})
   rules.fetchRules().catch(() => {})
   connect()
+})
+
+onUnmounted(() => {
+  disconnect()
 })
 </script>
 
@@ -73,9 +76,7 @@ onMounted(() => {
             @after-enter="onAfterEnter"
             @after-leave="onAfterLeave"
           >
-            <KeepAlive>
-              <component :is="Component" />
-            </KeepAlive>
+            <component :is="Component" />
           </Transition>
         </RouterView>
       </div>

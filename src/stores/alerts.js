@@ -2,8 +2,10 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { dummyAlerts } from '@/data/dummy'
 
+const USE_DUMMY = import.meta.env.VITE_USE_DUMMY === 'true'
+
 export const useAlertsStore = defineStore('alerts', () => {
-  const alerts = ref([...dummyAlerts])
+  const alerts = ref(USE_DUMMY ? [...dummyAlerts] : [])
 
   const activeCount = computed(() => alerts.value.filter(a => !a.acknowledged).length)
 

@@ -39,10 +39,22 @@ watch(period, loadHistory)
 function stats(arr) {
   if (!arr?.length) return { min: '—', max: '—', avg: '—', range: '—' }
   const vals = arr.map(p => p.v)
-  const min  = Math.min(...vals).toFixed(1)
-  const max  = Math.max(...vals).toFixed(1)
-  const avg  = (vals.reduce((a,b) => a+b, 0) / vals.length).toFixed(1)
-  return { min, max, avg, range: (max - min).toFixed(1) }
+  const min  = vals.reduce((a, b) => a < b ? a : b)
+  const max  = vals.reduce((a, b) => a > b ? a : b)
+  const avg  = vals.reduce((a, b) => a + b, 0) / vals.length
+  return {
+    min:   min.toFixed(1),
+    max:   max.toFixed(1),
+    avg:   avg.toFixed(1),
+    range: (max - min).toFixed(1)
+  }
+}
+
+// Reduce to at most maxPts evenly-spaced points so the chart stays responsive
+function downsample(arr, maxPts = 300) {
+  if (!arr?.length || arr.length <= maxPts) return arr
+  const step = arr.length / maxPts
+  return Array.from({ length: maxPts }, (_, i) => arr[Math.round(i * step)])
 }
 
 const tempStats = computed(() => stats(history.value.temperature))
@@ -50,9 +62,10 @@ const humStats  = computed(() => stats(history.value.humidity))
 const watStats  = computed(() => stats(history.value.water_level))
 
 function toDataset(arr, color, label) {
+  const pts = downsample(arr || [])
   return [{
     label,
-    data: (arr || []).map(p => p.v),
+    data: pts.map(p => p.v),
     borderColor: color,
     backgroundColor: color + '15',
     fill: true,
@@ -61,7 +74,8 @@ function toDataset(arr, color, label) {
   }]
 }
 function toLabels(arr) {
-  return (arr || []).map(p => new Date(p.t).toLocaleTimeString('es-ES', { hour:'2-digit', minute:'2-digit' }))
+  const pts = downsample(arr || [])
+  return pts.map(p => new Date(p.t).toLocaleTimeString('es-ES', { hour:'2-digit', minute:'2-digit' }))
 }
 </script>
 
@@ -90,35 +104,44 @@ function toLabels(arr) {
     <template v-else>
       <!-- Temperature -->
       <DataCard title="Temperatura interior">
-        <div class="stat-pills">
-          <div class="pill"><span class="pill-label">Mín</span><span class="pill-val">{{ tempStats.min }}°C</span></div>
-          <div class="pill"><span class="pill-label">Máx</span><span class="pill-val">{{ tempStats.max }}°C</span></div>
-          <div class="pill"><span class="pill-label">Media</span><span class="pill-val">{{ tempStats.avg }}°C</span></div>
-          <div class="pill"><span class="pill-label">Rango</span><span class="pill-val">{{ tempStats.range }}°C</span></div>
-        </div>
-        <LineChart :datasets="toDataset(history.temperature, '#1D9E75', 'Temperatura')" :labels="toLabels(history.temperature)" :height="160" />
+        <div v-if="!history.temperature.length" class="no-data">Sin datos de temperatura para este período</div>
+        <template v-else>
+          <div class="stat-pills">
+            <div class="pill"><span class="pill-label">Mín</span><span class="pill-val">{{ tempStats.min }}°C</span></div>
+            <div class="pill"><span class="pill-label">Máx</span><span class="pill-val">{{ tempStats.max }}°C</span></div>
+            <div class="pill"><span class="pill-label">Media</span><span class="pill-val">{{ tempStats.avg }}°C</span></div>
+            <div class="pill"><span class="pill-label">Rango</span><span class="pill-val">{{ tempStats.range }}°C</span></div>
+          </div>
+          <LineChart :datasets="toDataset(history.temperature, '#1D9E75', 'Temperatura')" :labels="toLabels(history.temperature)" :height="160" />
+        </template>
       </DataCard>
 
       <!-- Humidity -->
       <DataCard title="Humedad relativa">
-        <div class="stat-pills">
-          <div class="pill"><span class="pill-label">Mín</span><span class="pill-val">{{ humStats.min }}%</span></div>
-          <div class="pill"><span class="pill-label">Máx</span><span class="pill-val">{{ humStats.max }}%</span></div>
-          <div class="pill"><span class="pill-label">Media</span><span class="pill-val">{{ humStats.avg }}%</span></div>
-          <div class="pill"><span class="pill-label">Rango</span><span class="pill-val">{{ humStats.range }}%</span></div>
-        </div>
-        <LineChart :datasets="toDataset(history.humidity, '#8B5CF6', 'Humedad')" :labels="toLabels(history.humidity)" :height="160" />
+        <div v-if="!history.humidity.length" class="no-data">Sin datos de humedad para este período</div>
+        <template v-else>
+          <div class="stat-pills">
+            <div class="pill"><span class="pill-label">Mín</span><span class="pill-val">{{ humStats.min }}%</span></div>
+            <div class="pill"><span class="pill-label">Máx</span><span class="pill-val">{{ humStats.max }}%</span></div>
+            <div class="pill"><span class="pill-label">Media</span><span class="pill-val">{{ humStats.avg }}%</span></div>
+            <div class="pill"><span class="pill-label">Rango</span><span class="pill-val">{{ humStats.range }}%</span></div>
+          </div>
+          <LineChart :datasets="toDataset(history.humidity, '#8B5CF6', 'Humedad')" :labels="toLabels(history.humidity)" :height="160" />
+        </template>
       </DataCard>
 
       <!-- Water level -->
       <DataCard title="Nivel de agua">
-        <div class="stat-pills">
-          <div class="pill"><span class="pill-label">Mín</span><span class="pill-val">{{ watStats.min }}%</span></div>
-          <div class="pill"><span class="pill-label">Máx</span><span class="pill-val">{{ watStats.max }}%</span></div>
-          <div class="pill"><span class="pill-label">Media</span><span class="pill-val">{{ watStats.avg }}%</span></div>
-          <div class="pill"><span class="pill-label">Rango</span><span class="pill-val">{{ watStats.range }}%</span></div>
-        </div>
-        <LineChart :datasets="toDataset(history.water_level, '#378ADD', 'Nivel agua')" :labels="toLabels(history.water_level)" :height="160" />
+        <div v-if="!history.water_level.length" class="no-data">Sin datos de nivel de agua para este período</div>
+        <template v-else>
+          <div class="stat-pills">
+            <div class="pill"><span class="pill-label">Mín</span><span class="pill-val">{{ watStats.min }}%</span></div>
+            <div class="pill"><span class="pill-label">Máx</span><span class="pill-val">{{ watStats.max }}%</span></div>
+            <div class="pill"><span class="pill-label">Media</span><span class="pill-val">{{ watStats.avg }}%</span></div>
+            <div class="pill"><span class="pill-label">Rango</span><span class="pill-val">{{ watStats.range }}%</span></div>
+          </div>
+          <LineChart :datasets="toDataset(history.water_level, '#378ADD', 'Nivel agua')" :labels="toLabels(history.water_level)" :height="160" />
+        </template>
       </DataCard>
     </template>
 
@@ -152,4 +175,6 @@ function toLabels(arr) {
 }
 .pill-label { font-size: 9px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.6px; color: var(--text-muted); }
 .pill-val   { font-size: 14px; font-weight: 700; color: var(--text); }
+
+.no-data { padding: 24px; text-align: center; color: var(--text-muted); font-size: 13px; }
 </style>

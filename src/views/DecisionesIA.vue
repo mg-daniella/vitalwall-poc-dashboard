@@ -4,9 +4,11 @@ import { useRulesStore } from '@/stores/rules'
 import StatusDot   from '@/components/ui/StatusDot.vue'
 import StatusBadge from '@/components/ui/StatusBadge.vue'
 import ErrorState  from '@/components/ui/ErrorState.vue'
-import { useToastsStore } from '@/stores/toasts'
+import { useToastsStore }   from '@/stores/toasts'
+import { useRelativeTime } from '@/composables/useRelativeTime'
 
 const toasts = useToastsStore()
+const { relativeTime } = useRelativeTime()
 
 const rules = useRulesStore()
 const activeTab = ref('active')
@@ -37,6 +39,14 @@ function openOverride(rule) {
 
 async function saveOverride() {
   if (!selectedRule.value) return
+  if (!overrideForm.value.motivo.trim()) {
+    toasts.error('El motivo del override es obligatorio')
+    return
+  }
+  if (!overrideForm.value.duracion || overrideForm.value.duracion <= 0) {
+    toasts.error('La duración debe ser mayor que 0')
+    return
+  }
   try {
     await rules.overrideRule(selectedRule.value.id, { ...overrideForm.value })
     toasts.success('Override aplicado correctamente')
@@ -47,17 +57,11 @@ async function saveOverride() {
 }
 
 async function toggleRule(rule) {
-  const newStatus = rule.status === 'active' ? 'inactive' : 'active'
+  const newStatus = rule.status === 'active' ? 'pending' : 'active'
   await rules.toggleRule(rule.id, newStatus)
   if (rules.actionError?.id === rule.id) {
     toasts.error(rules.actionError.message)
   }
-}
-
-function relativeTime(iso) {
-  if (!iso) return ''
-  const mins = Math.floor((Date.now() - new Date(iso)) / 60000)
-  return mins < 60 ? `hace ${mins}m` : `hace ${Math.floor(mins/60)}h`
 }
 
 const scenarios = [
