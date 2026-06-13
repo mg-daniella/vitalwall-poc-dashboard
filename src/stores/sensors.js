@@ -42,11 +42,16 @@ export const useSensorsStore = defineStore('sensors', () => {
   }
 
   function updateFromWebSocket(data) {
-    if (data.temperature)   temperature.value   = { ...temperature.value,   ...data.temperature }
-    if (data.humidity)      humidity.value      = { ...humidity.value,      ...data.humidity }
-    if (data.water_level)   water_level.value   = { ...water_level.value,   ...data.water_level }
-    if (data.battery_level) battery_level.value = { ...battery_level.value, ...data.battery_level }
-    // A successful WS update clears any stale fetch error
+    // Normalize flat number format {temperature:20} or object format {temperature:{value:20,status:'ok'}}
+    function norm(current, raw) {
+      if (raw == null) return current
+      if (typeof raw === 'object') return { ...current, ...raw }
+      return { ...current, value: raw }
+    }
+    if (data.temperature   != null) temperature.value   = norm(temperature.value,   data.temperature)
+    if (data.humidity      != null) humidity.value      = norm(humidity.value,      data.humidity)
+    if (data.water_level   != null) water_level.value   = norm(water_level.value,   data.water_level)
+    if (data.battery_level != null) battery_level.value = norm(battery_level.value, data.battery_level)
     error.value = null
   }
 
