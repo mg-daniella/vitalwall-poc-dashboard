@@ -42,7 +42,7 @@ onMounted(() => {
       <AppTopbar />
       <div class="view-content">
         <RouterView v-slot="{ Component }">
-          <Transition name="fade" mode="out-in" appear>
+          <Transition name="fade" appear>
             <component :is="Component" :key="route.path" />
           </Transition>
         </RouterView>
@@ -97,7 +97,8 @@ onMounted(() => {
 }
 
 /* ─── Route fade transition ──────────────────────────────────── */
-.fade-enter-active, .fade-leave-active { transition: opacity 0.15s ease; }
+.fade-enter-active { transition: opacity 0.1s ease; }
+.fade-leave-active { transition: opacity 0.05s ease; }
 .fade-enter-from, .fade-leave-to { opacity: 0; }
 .fade-enter-to, .fade-leave-from { opacity: 1; }
 </style>
