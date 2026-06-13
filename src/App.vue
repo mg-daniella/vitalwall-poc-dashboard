@@ -1,6 +1,6 @@
 <script setup>
 import { onMounted } from 'vue'
-import { useRoute }   from 'vue-router'
+import { useRoute }     from 'vue-router'
 import AppSidebar          from '@/components/layout/AppSidebar.vue'
 import AppTopbar           from '@/components/layout/AppTopbar.vue'
 import ToastNotifications  from '@/components/ui/ToastNotifications.vue'
@@ -21,7 +21,30 @@ const rules   = useRulesStore()
 const health  = useSystemHealthStore()
 const toasts  = useToastsStore()
 const { connect } = useWebSocket()
-const route   = useRoute()
+const route = useRoute()
+
+// JS-controlled transition — never depends on CSS transitionend events
+function onLeave(el, done) {
+  el.style.transition = 'opacity 0.05s ease'
+  el.style.opacity = '0'
+  setTimeout(done, 60)          // call done() ourselves — guaranteed to fire
+}
+function onEnter(el, done) {
+  el.style.opacity = '0'
+  el.style.transition = 'opacity 0.08s ease'
+  requestAnimationFrame(() => {
+    el.style.opacity = '1'
+    setTimeout(done, 90)
+  })
+}
+function onAfterEnter(el) {
+  el.style.transition = ''
+  el.style.opacity    = ''
+}
+function onAfterLeave(el) {
+  el.style.transition = ''
+  el.style.opacity    = ''
+}
 
 onMounted(() => {
   // All stores fetch in parallel — no store waits for another
@@ -42,7 +65,14 @@ onMounted(() => {
       <AppTopbar />
       <div class="view-content">
         <RouterView v-slot="{ Component }">
-          <Transition name="fade" mode="out-in">
+          <Transition
+            mode="out-in"
+            :css="false"
+            @leave="onLeave"
+            @enter="onEnter"
+            @after-enter="onAfterEnter"
+            @after-leave="onAfterLeave"
+          >
             <component :is="Component" :key="route.path" />
           </Transition>
         </RouterView>
@@ -96,13 +126,5 @@ onMounted(() => {
   gap: 14px;
 }
 
-/* ─── Route fade transition ──────────────────────────────────── */
-/* Both transitions must have a non-zero duration so transitionend always fires.
-   Vue mode="out-in" waits for transitionend before mounting the next component —
-   if it never fires (e.g. transition:none), all subsequent navigation is dead. */
-.fade-leave-active { transition: opacity 0.05s ease; }
-.fade-leave-to     { opacity: 0; }
-.fade-enter-active { transition: opacity 0.08s ease; }
-.fade-enter-from   { opacity: 0; }
-.fade-enter-to     { opacity: 1; }
+/* Route transitions are JS-controlled (css:false) — no CSS rules needed */
 </style>
