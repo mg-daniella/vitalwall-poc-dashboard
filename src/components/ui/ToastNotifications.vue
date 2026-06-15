@@ -15,7 +15,7 @@ const toasts = useToastsStore()
           @click="toasts.remove(t.id)"
         >
           <span class="toast-icon">
-            {{ t.variant === 'error' ? '✕' : t.variant === 'warning' ? '⚠' : '✓' }}
+            <i :class="t.variant === 'error' ? 'ti ti-x' : t.variant === 'warning' ? 'ti ti-alert-triangle' : 'ti ti-check'" aria-hidden="true"></i>
           </span>
           <span class="toast-msg">{{ t.message }}</span>
         </div>

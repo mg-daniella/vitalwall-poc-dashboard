@@ -17,13 +17,13 @@ const sensors = useSensorsStore()
 const { relativeTime } = useRelativeTime()
 
 const statusGrid = computed(() => [
-  { key: 'incendio', label: 'Incendio', icon: '🔥',
+  { key: 'incendio', label: 'Incendio', icon: 'ti-flame',
     status: alertsStore.alerts.some(a => !a.acknowledged && a.code?.includes('FIRE')) ? 'danger' : 'ok' },
-  { key: 'agua',     label: 'Agua',     icon: '💧',
+  { key: 'agua',     label: 'Agua',     icon: 'ti-droplet',
     status: sensors.water_level.status === 'danger' ? 'danger' : sensors.water_level.status === 'warning' ? 'warning' : 'ok' },
-  { key: 'sensores', label: 'Sensores', icon: '📡',
+  { key: 'sensores', label: 'Sensores', icon: 'ti-radar-2',
     status: health.sensors.status },
-  { key: 'bateria',  label: 'Batería',  icon: '🔋',
+  { key: 'bateria',  label: 'Batería',  icon: 'ti-battery-2',
     status: sensors.battery_level.status === 'danger' ? 'danger' : sensors.battery_level.status === 'warning' ? 'warning' : 'ok' }
 ])
 </script>
@@ -36,7 +36,7 @@ const statusGrid = computed(() => [
       <div class="section-label danger">Alertas activas — {{ active.length }}</div>
       <div v-for="alert in active" :key="alert.id" class="alert-banner danger-banner">
         <div class="alert-header">
-          <span class="alert-icon">🚨</span>
+          <i class="ti ti-alert-triangle alert-icon" aria-hidden="true"></i>
           <StatusBadge :label="alert.code" variant="red" />
           <StatusBadge :label="alert.source" variant="gray" />
           <span class="alert-time">{{ relativeTime(alert.timestamp) }}</span>
@@ -58,7 +58,7 @@ const statusGrid = computed(() => [
       <div class="section-label warning">Avisos activos — {{ warnings.length }}</div>
       <div v-for="alert in warnings" :key="alert.id" class="alert-banner warning-banner">
         <div class="alert-header">
-          <span class="alert-icon">⚠</span>
+          <i class="ti ti-alert-circle alert-icon" aria-hidden="true"></i>
           <StatusBadge :label="alert.code" variant="amber" />
           <StatusBadge :label="alert.source" variant="gray" />
           <span class="alert-time">{{ relativeTime(alert.timestamp) }}</span>
@@ -80,7 +80,7 @@ const statusGrid = computed(() => [
       <div class="section-label resolved">Resueltos — {{ resolved.length }}</div>
       <div v-for="alert in resolved" :key="alert.id" class="alert-banner resolved-banner">
         <div class="alert-header">
-          <span class="alert-icon">✓</span>
+          <i class="ti ti-check alert-icon" aria-hidden="true"></i>
           <StatusBadge :label="alert.code" variant="gray" />
           <StatusBadge :label="alert.source" variant="gray" />
           <span class="alert-time">{{ relativeTime(alert.timestamp) }}</span>
@@ -91,7 +91,7 @@ const statusGrid = computed(() => [
 
     <!-- No alerts -->
     <div v-if="!active.length && !warnings.length" class="no-alerts">
-      <div class="no-alert-icon">✅</div>
+      <div class="no-alert-icon"><i class="ti ti-circle-check" aria-hidden="true"></i></div>
       <div class="no-alert-title">Sin alertas activas</div>
       <div class="no-alert-sub">Todos los sistemas operan dentro de parámetros normales.</div>
     </div>
@@ -99,7 +99,7 @@ const statusGrid = computed(() => [
     <!-- Status grid -->
     <div class="status-grid">
       <div v-for="item in statusGrid" :key="item.key" class="status-item card">
-        <span class="status-icon">{{ item.icon }}</span>
+        <i :class="`ti ${item.icon} status-icon`" aria-hidden="true"></i>
         <div class="status-label">{{ item.label }}</div>
         <StatusBadge label="Normal" variant="green" />
       </div>

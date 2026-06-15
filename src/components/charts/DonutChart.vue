@@ -6,7 +6,7 @@ Chart.register(DoughnutController, ArcElement, Tooltip, Legend)
 
 const props = defineProps({
   data:   { type: Array,  required: true },
-  colors: { type: Array,  default: () => ['#1D9E75','#378ADD','#EF9F27'] },
+  colors: { type: Array,  default: () => ['#0071BC','#0D9488','#D97706'] },
   labels: { type: Array,  default: () => [] },
   cutout: { type: String, default: '70%' },
   height: { type: Number, default: 180 }

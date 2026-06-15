@@ -21,7 +21,7 @@ function stLabel(s){ return s === 'ok' ? 'Normal' : s === 'warning' ? 'Aviso' : 
 
 function hourIcon(hour) {
   const h = parseInt(String(hour ?? '12').split(':')[0])
-  return h >= 6 && h < 20 ? '☀' : '🌙'
+  return h >= 6 && h < 20 ? 'ti-sun' : 'ti-moon'
 }
 function tempColor(t) {
   if (t == null) return 'var(--text-muted)'
@@ -56,7 +56,7 @@ const fwiPct = computed(() => Math.min(((current.value.fire_risk_fwi?.value ?? 0
 
     <!-- Error banner (shown when API fails) -->
     <div v-if="env.error" class="env-error">
-      ⚠ Error al cargar datos climáticos: {{ env.error.message }}
+      <i class="ti ti-alert-triangle" aria-hidden="true"></i> Error al cargar datos climáticos: {{ env.error.message }}
       <button @click="env.retry()" class="env-retry">Reintentar</button>
     </div>
 
@@ -91,7 +91,7 @@ const fwiPct = computed(() => Math.min(((current.value.fire_risk_fwi?.value ?? 0
         <div class="forecast-scroll">
           <div v-for="f in forecast" :key="f.hour" class="forecast-card">
             <div class="fc-hour">{{ f.hour }}</div>
-            <div class="fc-icon">{{ hourIcon(f.hour) }}</div>
+            <i :class="`ti ${hourIcon(f.hour)} fc-icon`" aria-hidden="true"></i>
             <div class="fc-temp" :style="{ color: tempColor(f.temp) }">{{ f.temp != null ? f.temp + '°' : '—' }}</div>
             <div class="fc-wind">{{ f.wind_kmh != null ? f.wind_kmh + ' km/h' : '' }}</div>
             <div class="fc-rain" v-if="f.precipitation_prob != null">{{ f.precipitation_prob }}%</div>
@@ -171,7 +171,7 @@ const fwiPct = computed(() => Math.min(((current.value.fire_risk_fwi?.value ?? 0
   background: var(--card-alt); border-radius: 5px; padding: 9px 8px; text-align: center;
 }
 .fc-hour { font-size: 10px; color: var(--text-muted); font-weight: 600; margin-bottom: 4px; }
-.fc-icon { font-size: 16px; margin-bottom: 3px; }
+.fc-icon { font-size: 16px; margin-bottom: 3px; display: block; }
 .fc-temp { font-size: 16px; font-weight: 700; }
 .fc-wind { font-size: 10px; color: var(--text-muted); margin-top: 3px; }
 .fc-rain { font-size: 10px; color: var(--blue-raw); }

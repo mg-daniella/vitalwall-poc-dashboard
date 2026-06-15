@@ -20,7 +20,7 @@ function statusHint(code) {
 
 <template>
   <div class="error-state" :class="{ compact }">
-    <div class="error-icon">{{ retryExhausted ? '🔌' : '⚠' }}</div>
+    <div class="error-icon"><i :class="retryExhausted ? 'ti ti-plug-off' : 'ti ti-alert-triangle'" aria-hidden="true"></i></div>
     <div class="error-body">
       <div class="error-title">
         {{ retryExhausted ? 'Conexión agotada' : 'Error de carga' }}

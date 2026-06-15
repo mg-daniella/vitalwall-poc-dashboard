@@ -7,7 +7,7 @@ defineProps({
 <template>
   <div class="insight-box">
     <div class="insight-label">
-      <span>✦</span>
+      <i class="ti ti-sparkles" aria-hidden="true"></i>
       <span>IA Insight</span>
     </div>
     <div class="insight-text">{{ text }}</div>
@@ -16,16 +16,27 @@ defineProps({
 
 <style scoped>
 .insight-box {
-  background: rgba(29,158,117,0.07);
-  border: 1px solid rgba(29,158,117,0.18);
-  border-radius: 5px;
-  padding: 12px 14px;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--blue-raw);
+  border-radius: 6px;
+  padding: 14px 18px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  height: 100%;
+  box-sizing: border-box;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05), 0 4px 16px rgba(0,0,0,0.08);
 }
 .insight-label {
-  font-size: 9px; font-weight: 600; letter-spacing: 1px;
-  text-transform: uppercase; color: var(--green-light);
-  margin-bottom: 5px; display: flex; align-items: center; gap: 5px;
+  font-size: 10px; font-weight: 700; letter-spacing: 1px;
+  text-transform: uppercase; color: var(--blue-raw);
+  margin-bottom: 10px; display: flex; align-items: center; gap: 6px;
 }
-.insight-text { font-size: 12px; font-weight: 400; color: var(--text-secondary); line-height: 1.65; }
-html.dark .insight-label { color: var(--green-light); }
+.insight-label .ti { font-size: 13px; }
+.insight-text {
+  font-size: 14px; font-weight: 400;
+  color: var(--text);
+  line-height: 1.75;
+}
 </style>

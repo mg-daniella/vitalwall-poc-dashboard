@@ -37,13 +37,13 @@ const typeBreakdown = computed(() => {
 })
 
 const typeIconMap = {
-  sensor_update:        { icon: '📡', color: 'var(--blue-raw)',  label: 'Sensor' },
-  environmental_update: { icon: '🌤', color: 'var(--amber)',     label: 'Entorno' },
-  air_quality_update:   { icon: '💨', color: 'var(--green)',     label: 'Aire' },
-  rule_update:          { icon: '⚡', color: 'var(--green)',     label: 'Regla IA' },
-  metrics_update:       { icon: '📊', color: 'var(--blue-raw)',  label: 'Métricas' },
-  alert:                { icon: '🔔', color: 'var(--red)',       label: 'Alerta' },
-  health_update:        { icon: '💚', color: 'var(--green)',     label: 'Salud' }
+  sensor_update:        { icon: 'ti-radar-2',           color: 'var(--blue-raw)',  label: 'Sensor' },
+  environmental_update: { icon: 'ti-cloud-sun',          color: 'var(--amber)',     label: 'Entorno' },
+  air_quality_update:   { icon: 'ti-wind',               color: 'var(--green)',     label: 'Aire' },
+  rule_update:          { icon: 'ti-bolt',               color: 'var(--green)',     label: 'Regla IA' },
+  metrics_update:       { icon: 'ti-chart-bar',          color: 'var(--blue-raw)',  label: 'Métricas' },
+  alert:                { icon: 'ti-bell-ringing',       color: 'var(--red)',       label: 'Alerta' },
+  health_update:        { icon: 'ti-heart-rate-monitor', color: 'var(--green)',     label: 'Salud' }
 }
 
 function fmtTime(iso) {
@@ -77,7 +77,7 @@ function variantFor(type) {
         <div class="events-list">
           <div v-for="ev in filteredEvents" :key="ev.id" class="event-item">
             <div class="event-icon" :style="{ background: typeIconMap[ev.type]?.color + '22', color: typeIconMap[ev.type]?.color }">
-              {{ typeIconMap[ev.type]?.icon || '•' }}
+              <i :class="`ti ${typeIconMap[ev.type]?.icon || 'ti-circle'}`" aria-hidden="true"></i>
             </div>
             <div class="event-body">
               <div class="event-header">

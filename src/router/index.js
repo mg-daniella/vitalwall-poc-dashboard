@@ -15,6 +15,7 @@ const routes = [
   { path: '/alertas',    name: 'Alertas',           component: () => import('@/views/Alertas.vue') },
   { path: '/agua',       name: 'AguaYSequia',      component: () => import('@/views/AguaYSequia.vue') },
   { path: '/emergencias',name: 'Emergencias',       component: () => import('@/views/Emergencias.vue') },
+  { path: '/esg',        name: 'ESGReport',         component: () => import('@/views/ESGReport.vue') },
   { path: '/:pathMatch(.*)*', redirect: '/' }
 ]
 

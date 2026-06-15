@@ -30,7 +30,7 @@ export const useWebSocketStore = defineStore('websocket', () => {
       case 'rule_update':          return `Regla actualizada: ${d.title || ''}`
       case 'metrics_update':       return `Métricas recalculadas`
       case 'alert':                return `Alerta: ${d.title || ''}`
-      case 'health_update':        return `Estado del sistema — sensores: ${d.sensor_online ? '✓' : '✗'}`
+      case 'health_update':        return `Estado del sistema — sensores: ${d.sensor_online ? 'OK' : 'error'}`
       case 'connected':            return d.message || 'WebSocket conectado'
       default:                     return JSON.stringify(msg).slice(0, 80)
     }

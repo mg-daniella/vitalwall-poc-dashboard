@@ -11,13 +11,13 @@ const emergencyCodes = [
 const activeEmergencies = []
 
 const emergencyInfo = {
-  storm_warning:           { icon: '⛈', label: 'Alerta de tormenta',      color: 'amber' },
-  earthquake:              { icon: '🏚', label: 'Terremoto',               color: 'red' },
-  flood_warning:           { icon: '🌊', label: 'Alerta de inundación',    color: 'blue' },
-  extreme_heat:            { icon: '🌡', label: 'Calor extremo',           color: 'red' },
-  extreme_cold:            { icon: '🧊', label: 'Frío extremo',            color: 'blue' },
-  wildfire_nearby:         { icon: '🔥', label: 'Incendio próximo',        color: 'red' },
-  air_quality_hazardous:   { icon: '☣', label: 'Calidad aire peligrosa',  color: 'red' }
+  storm_warning:           { icon: 'ti-cloud-storm',     label: 'Alerta de tormenta',      color: 'amber' },
+  earthquake:              { icon: 'ti-building-community', label: 'Terremoto',             color: 'red' },
+  flood_warning:           { icon: 'ti-ripple',          label: 'Alerta de inundación',    color: 'blue' },
+  extreme_heat:            { icon: 'ti-thermometer-sun', label: 'Calor extremo',           color: 'red' },
+  extreme_cold:            { icon: 'ti-snowflake',       label: 'Frío extremo',            color: 'blue' },
+  wildfire_nearby:         { icon: 'ti-flame',           label: 'Incendio próximo',        color: 'red' },
+  air_quality_hazardous:   { icon: 'ti-biohazard',       label: 'Calidad aire peligrosa',  color: 'red' }
 }
 
 const monitoredSources = [
@@ -41,7 +41,7 @@ const monitoredSources = [
         v-for="code in emergencyCodes" :key="code"
         class="em-type-card card"
       >
-        <span class="em-icon">{{ emergencyInfo[code].icon }}</span>
+        <i :class="`ti ${emergencyInfo[code].icon} em-icon`" aria-hidden="true"></i>
         <div class="em-label">{{ emergencyInfo[code].label }}</div>
         <StatusBadge label="Normal" variant="green" />
       </div>
@@ -49,7 +49,7 @@ const monitoredSources = [
 
     <!-- Active emergencies (empty state) -->
     <div v-if="!activeEmergencies.length" class="no-em card">
-      <div class="no-em-icon">🛡</div>
+      <div class="no-em-icon"><i class="ti ti-shield-check" aria-hidden="true"></i></div>
       <div class="no-em-title">Sin emergencias externas activas</div>
       <div class="no-em-desc">
         El sistema monitoriza continuamente las alertas de AEMET, EFFIS, IGME y SAIH.
@@ -97,11 +97,11 @@ const monitoredSources = [
   display: flex; flex-direction: column; align-items: center;
   gap: 8px; padding: 16px 10px; text-align: center;
 }
-.em-icon  { font-size: 28px; }
+.em-icon  { font-size: 28px; color: inherit; }
 .em-label { font-size: 11px; font-weight: 600; color: var(--text); }
 
 .no-em { text-align: center; padding: 40px 24px; }
-.no-em-icon  { font-size: 40px; margin-bottom: 10px; }
+.no-em-icon  { font-size: 36px; margin-bottom: 10px; color: var(--green); }
 .no-em-title { font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
 .no-em-desc  { font-size: 12px; color: var(--text-muted); line-height: 1.7; max-width: 380px; margin: 0 auto; }
 

@@ -9,7 +9,8 @@ import {
   IconLayoutDashboard, IconBrain, IconSparkles, IconStack2,
   IconCloud, IconBolt, IconWind, IconThermometer,
   IconHistory, IconApi, IconHeartbeat, IconBell,
-  IconDroplet, IconAlertTriangle, IconSun, IconMoon
+  IconDroplet, IconAlertTriangle, IconSun, IconMoon,
+  IconLeaf
 } from '@tabler/icons-vue'
 
 const route   = useRoute()
@@ -18,21 +19,57 @@ const wsStore = useWebSocketStore()
 const alerts  = useAlertsStore()
 const metrics = useMetricsStore()
 
-const nav = [
-  { label: 'Panel General',     to: '/',            icon: IconLayoutDashboard },
-  { label: 'Cerebro Activo',    to: '/cerebro',     icon: IconBrain },
-  { label: 'Decisiones IA',     to: '/decisiones',  icon: IconSparkles },
-  { label: 'Capas de la Pared', to: '/capas',       icon: IconStack2 },
-  { label: 'Clima y Previsión', to: '/clima',       icon: IconCloud },
-  { label: 'Red Eléctrica',     to: '/red',         icon: IconBolt },
-  { label: 'Calidad del Aire',  to: '/aire',        icon: IconWind },
-  { label: 'Confort',           to: '/confort',     icon: IconThermometer },
-  { label: 'Histórico',         to: '/historico',   icon: IconHistory },
-  { label: 'Log de APIs',       to: '/log',         icon: IconApi },
-  { label: 'Salud del Sistema', to: '/salud',       icon: IconHeartbeat },
-  { label: 'Alertas',           to: '/alertas',     icon: IconBell },
-  { label: 'Agua y Sequía',     to: '/agua',        icon: IconDroplet },
-  { label: 'Emergencias',       to: '/emergencias', icon: IconAlertTriangle }
+const navGroups = [
+  {
+    label: 'Inicio',
+    items: [
+      { label: 'Panel General', to: '/', icon: IconLayoutDashboard },
+    ]
+  },
+  {
+    label: 'Inteligencia',
+    items: [
+      { label: 'Cerebro Activo', to: '/cerebro',    icon: IconBrain },
+      { label: 'Decisiones IA',  to: '/decisiones', icon: IconSparkles },
+    ]
+  },
+  {
+    label: 'Edificio',
+    items: [
+      { label: 'Capas de la Pared', to: '/capas',   icon: IconStack2 },
+      { label: 'Confort',           to: '/confort',  icon: IconThermometer },
+    ]
+  },
+  {
+    label: 'Ambiente',
+    items: [
+      { label: 'Clima y Previsión', to: '/clima', icon: IconCloud },
+      { label: 'Calidad del Aire',  to: '/aire',  icon: IconWind },
+      { label: 'Agua y Sequía',     to: '/agua',  icon: IconDroplet },
+    ]
+  },
+  {
+    label: 'Energía',
+    items: [
+      { label: 'Red Eléctrica', to: '/red', icon: IconBolt },
+    ]
+  },
+  {
+    label: 'Sostenibilidad',
+    items: [
+      { label: 'Informe ESG', to: '/esg', icon: IconLeaf },
+    ]
+  },
+  {
+    label: 'Sistema',
+    items: [
+      { label: 'Histórico',         to: '/historico',   icon: IconHistory },
+      { label: 'Log de APIs',       to: '/log',         icon: IconApi },
+      { label: 'Salud del Sistema', to: '/salud',       icon: IconHeartbeat },
+      { label: 'Alertas',           to: '/alertas',     icon: IconBell },
+      { label: 'Emergencias',       to: '/emergencias', icon: IconAlertTriangle },
+    ]
+  },
 ]
 
 const lastEvents = computed(() => wsStore.events.slice(0, 3))
@@ -56,24 +93,24 @@ function isActive(to) { return route.path === to }
       <span class="live-text">{{ wsStore.connected ? 'Sistema en vivo' : 'Desconectado' }}</span>
     </div>
 
-    <!-- Main nav -->
-    <div class="section">
-      <div class="section-label">Vistas</div>
-    </div>
+    <!-- Sectioned nav -->
     <nav>
-      <RouterLink
-        v-for="item in nav"
-        :key="item.to"
-        :to="item.to"
-        class="nav-item"
-        :class="{ active: isActive(item.to) }"
-      >
-        <component :is="item.icon" :size="15" stroke-width="1.8" />
-        <span class="nav-label">{{ item.label }}</span>
-        <span v-if="item.to === '/alertas' && alerts.activeCount > 0" class="nav-badge badge-red">
-          {{ alerts.activeCount }}
-        </span>
-      </RouterLink>
+      <template v-for="group in navGroups" :key="group.label">
+        <div class="section-label">{{ group.label }}</div>
+        <RouterLink
+          v-for="item in group.items"
+          :key="item.to"
+          :to="item.to"
+          class="nav-item"
+          :class="{ active: isActive(item.to) }"
+        >
+          <component :is="item.icon" :size="15" stroke-width="1.8" />
+          <span class="nav-label">{{ item.label }}</span>
+          <span v-if="item.to === '/alertas' && alerts.activeCount > 0" class="nav-badge badge-red">
+            {{ alerts.activeCount }}
+          </span>
+        </RouterLink>
+      </template>
     </nav>
 
     <!-- Divider -->
@@ -162,17 +199,17 @@ function isActive(to) { return route.path === to }
 }
 .live-dot {
   width: 6px; height: 6px; border-radius: 50%;
-  background: var(--green); box-shadow: 0 0 5px #1D9E75;
+  background: var(--green); box-shadow: 0 0 5px rgba(0,113,188,0.6);
   animation: blink 2s infinite; flex-shrink: 0;
 }
 @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.35} }
 .live-text { font-size: 11px; font-weight: 400; letter-spacing: 0.3px; color: var(--text-muted); }
 
 /* Section labels */
-.section { padding: 14px 20px 4px; }
 .section-label {
   font-size: 9px; font-weight: 600; letter-spacing: 1.5px;
-  text-transform: uppercase; color: var(--text-muted); margin-bottom: 3px;
+  text-transform: uppercase; color: var(--text-muted);
+  padding: 16px 20px 4px;
 }
 
 /* Nav items */
@@ -185,15 +222,15 @@ function isActive(to) { return route.path === to }
 }
 .nav-item:hover { background: rgba(0,0,0,0.03); color: var(--text); }
 .nav-item.active {
-  background: rgba(29,158,117,0.09);
-  border-left-color: var(--green);
+  background: rgba(13,148,136,0.09);
+  border-left-color: var(--blue-raw);
   padding-left: 16px;
   color: var(--text);
 }
-html.dark .nav-item.active { background: rgba(93,202,165,0.08); border-left-color: var(--green-light); }
+html.dark .nav-item.active { background: rgba(13,148,136,0.12); border-left-color: var(--blue-raw); }
 .nav-label {
-  font-size: 13px; font-weight: 600; letter-spacing: 0.3px;
-  text-transform: uppercase; flex: 1;
+  font-size: 13px; font-weight: 500; letter-spacing: 0;
+  flex: 1;
 }
 
 /* Badges */
@@ -210,8 +247,8 @@ html.dark .nav-item.active { background: rgba(93,202,165,0.08); border-left-colo
 /* Cerebro panel */
 .cerebro-panel {
   margin: 0 12px 8px;
-  background: rgba(29,158,117,0.07);
-  border: 1px solid rgba(29,158,117,0.18);
+  background: rgba(13,148,136,0.07);
+  border: 1px solid rgba(13,148,136,0.18);
   border-radius: 5px;
   padding: 10px 12px;
 }
@@ -222,7 +259,7 @@ html.dark .nav-item.active { background: rgba(93,202,165,0.08); border-left-colo
 }
 .cerebro-event {
   display: flex; align-items: flex-start; gap: 7px;
-  padding: 5px 0; border-bottom: 1px solid rgba(29,158,117,0.1);
+  padding: 5px 0; border-bottom: 1px solid rgba(13,148,136,0.1);
 }
 .cerebro-event:last-child { border-bottom: none; padding-bottom: 0; }
 .ev-dot { width: 5px; height: 5px; border-radius: 50%; margin-top: 4px; flex-shrink: 0; }
@@ -256,7 +293,7 @@ html.dark .nav-item.active { background: rgba(93,202,165,0.08); border-left-colo
   border: 1px solid var(--border-strong); background: rgba(0,0,0,0.12);
   position: relative; cursor: pointer; flex-shrink: 0;
 }
-html.dark .toggle-track { background: var(--green); border-color: var(--green); }
+html.dark .toggle-track { background: var(--blue-raw); border-color: var(--blue-raw); }
 .toggle-thumb {
   position: absolute; top: 3px; left: 3px;
   width: 11px; height: 11px; border-radius: 50%;
