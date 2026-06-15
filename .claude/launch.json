@@ -4,8 +4,8 @@
     {
       "name": "vitalwall",
       "runtimeExecutable": "/Users/grandini/.nvm/versions/node/v24.16.0/bin/npm",
-      "runtimeArgs": ["run", "dev"],
-      "port": 5173
+      "runtimeArgs": ["run", "dev", "--", "--port", "5176"],
+      "port": 5176
     }
   ]
 }
