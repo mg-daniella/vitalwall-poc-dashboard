@@ -10,9 +10,10 @@ const wsStore = useWebSocketStore()
 
 // ── Site selector ──
 const sites = [
-  { id: 'hq',      label: 'Cosentino HQ',  sub: 'Almería, España' },
-  { id: 'canada',  label: 'Cosentino Lab',  sub: 'Canadá'          },
-  { id: 'argelia', label: 'Cosentino Lab',  sub: 'Argelia'         },
+  { id: 'hq',           label: 'Cosentino HQ',      sub: 'Almería, España'     },
+  { id: 'canada',       label: 'Edificio Canadá',    sub: 'Canadá'              },
+  { id: 'argelia',      label: 'Edificio Argelia',   sub: 'Argelia'             },
+  { id: 'consolidados', label: 'Datos Consolidados', sub: 'Todos los edificios' },
 ]
 const selectedSite = ref(sites[0])
 const siteOpen     = ref(false)
