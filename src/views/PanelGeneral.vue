@@ -449,22 +449,22 @@ const apiLabels = {
 
 /* Comparison KPIs */
 .temp-chart-kpis {
-  padding: 18px 16px 14px;
+  padding: 16px 14px;
   display: grid;
   grid-template-columns: 1fr 1px 1fr;
   gap: 0;
   align-items: center;
 }
-.kpi-block { display: flex; flex-direction: column; gap: 6px; padding: 0 14px; }
+.kpi-block { display: flex; flex-direction: column; gap: 5px; padding: 0 12px; }
 .kpi-block:first-child { padding-left: 0; }
 .kpi-block:last-child  { padding-right: 0; }
-.kpi-divider { width: 1px; height: 80%; background: var(--border); align-self: center; }
+.kpi-divider { width: 1px; height: 75%; background: var(--border); align-self: center; }
 
 .kpi-header { display: flex; align-items: center; gap: 6px; }
 .kpi-icon { font-size: 14px; color: var(--blue-raw); }
 .kpi-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.7px; color: var(--text-muted); }
 
-.kpi-today { font-size: 28px; font-weight: 700; letter-spacing: -1px; color: var(--text); line-height: 1.1; }
+.kpi-today { font-size: 22px; font-weight: 700; letter-spacing: -0.5px; color: var(--text); line-height: 1.1; }
 .kpi-unit  { font-size: 12px; color: var(--text-secondary); margin-left: 2px; font-weight: 500; }
 
 .kpi-compare { display: flex; align-items: center; gap: 8px; }
