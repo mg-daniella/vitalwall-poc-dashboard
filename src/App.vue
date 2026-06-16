@@ -101,4 +101,24 @@ onUnmounted(() => {
   box-shadow: 0 1px 2px rgba(0,0,0,0.05), 0 4px 16px rgba(0,0,0,0.08);
 }
 
+/* ─── Print: ESG report only ─────────────────────────────────── */
+@media print {
+  @page { margin: 15mm; size: A4; }
+
+  body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+
+  /* Hide chrome */
+  .sidebar,
+  .topbar { display: none !important; }
+
+  /* Flatten layout so view fills the page */
+  .app-layout,
+  .main-area { display: block !important; height: auto !important; overflow: visible !important; }
+  .view-content { overflow: visible !important; height: auto !important; }
+  .view-inner   { padding: 0 !important; }
+
+  /* Clean up card borders for paper */
+  .card { box-shadow: none !important; border: 1px solid #ddd !important; }
+}
+
 </style>

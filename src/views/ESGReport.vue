@@ -225,22 +225,12 @@ const maxEnergy = Math.max(...timeline.map(t => t.energy))
 .download-btn .ti { font-size: 14px; }
 
 @media print {
-  /* Hide everything except the ESG view */
-  .sidebar, .topbar, .download-btn, .esg-badge { display: none !important; }
-  .main-area { overflow: visible !important; }
-  .view-content { overflow: visible !important; }
-  .view-inner { padding: 20px !important; gap: 20px !important; }
+  /* Hide download button and badge — already handled globally for sidebar/topbar */
+  .download-btn, .esg-badge { display: none !important; }
 
-  /* Reset card shadows for print */
-  .card { box-shadow: none !important; border: 1px solid #ddd !important; }
-
-  /* Keep layout intact */
-  .kpi-row       { grid-template-columns: repeat(4, 1fr) !important; }
-  .pillars-grid  { grid-template-columns: repeat(3, 1fr) !important; }
-
-  /* Page setup */
-  @page { margin: 15mm; size: A4; }
-  body  { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  /* Keep grids intact on paper */
+  .kpi-row      { grid-template-columns: repeat(4, 1fr) !important; }
+  .pillars-grid { grid-template-columns: repeat(3, 1fr) !important; }
 }
 
 /* KPI row */
