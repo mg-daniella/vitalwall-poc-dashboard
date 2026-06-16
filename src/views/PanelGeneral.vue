@@ -439,7 +439,7 @@ const apiLabels = {
 
 /* Temp bar chart */
 .temp-chart-card { padding: 0; overflow: hidden; }
-.temp-chart-inner { display: grid; grid-template-columns: 1fr minmax(0, 200px); min-height: 0; }
+.temp-chart-inner { display: grid; grid-template-columns: 1fr 240px; min-height: 0; }
 .temp-chart-bars { padding: 18px 20px 14px; border-right: 1px solid var(--border); }
 .temp-bars-wrap {
   display: flex; align-items: flex-end; gap: 5px;
@@ -643,19 +643,23 @@ const apiLabels = {
 .health-time { font-size: 10px; color: var(--text-muted); }
 .sk-row { height: 22px; background: var(--card-alt); border-radius: 4px; margin-top: 8px; }
 
-@media (max-width: 1280px) {
+@media (max-width: 1380px) {
+  /* Stack KPIs below bars so neither gets squeezed */
+  .temp-chart-inner { grid-template-columns: 1fr; }
+  .temp-chart-bars  { border-right: none; border-bottom: 1px solid var(--border); }
+  .temp-chart-kpis  {
+    padding: 14px 20px 16px;
+    grid-template-columns: 1fr 1px 1fr;
+    border-top: none;
+  }
+}
+@media (max-width: 1200px) {
   .panel-layout { grid-template-columns: minmax(0, 180px) 1fr minmax(0, 180px); }
-  .temp-chart-inner { grid-template-columns: 1fr minmax(0, 170px); }
   .center-middle { grid-template-columns: minmax(0, 140px) 1fr; }
 }
 @media (max-width: 1080px) {
   .panel-layout { grid-template-columns: 1fr 1fr; }
-  .left-col  { grid-column: 1; }
   .center-col { grid-column: 1 / -1; order: -1; }
-  .right-col { grid-column: 2; }
-  .temp-chart-inner { grid-template-columns: 1fr; }
-  .temp-chart-kpis { border-top: 1px solid var(--border); padding: 14px 20px; grid-template-columns: 1fr 1px 1fr; }
-  .temp-chart-bars { border-right: none; }
 }
 @media (max-width: 720px) {
   .panel-layout { grid-template-columns: 1fr; }
