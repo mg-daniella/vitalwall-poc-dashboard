@@ -60,6 +60,7 @@ onUnmounted(() => {
 }
 .main-area {
   flex: 1;
+  min-width: 0;
   display: flex;
   flex-direction: column;
   overflow: hidden;

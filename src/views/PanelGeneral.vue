@@ -375,9 +375,10 @@ const apiLabels = {
 /* ── 3-col grid ── */
 .panel-layout {
   display: grid;
-  grid-template-columns: 230px 1fr 230px;
+  grid-template-columns: minmax(0, 210px) 1fr minmax(0, 210px);
   gap: 14px;
   align-items: start;
+  min-width: 0;
 }
 
 /* shared card title */
@@ -438,7 +439,7 @@ const apiLabels = {
 
 /* Temp bar chart */
 .temp-chart-card { padding: 0; overflow: hidden; }
-.temp-chart-inner { display: grid; grid-template-columns: 1fr 220px; min-height: 0; }
+.temp-chart-inner { display: grid; grid-template-columns: 1fr minmax(0, 200px); min-height: 0; }
 .temp-chart-bars { padding: 18px 20px 14px; border-right: 1px solid var(--border); }
 .temp-bars-wrap {
   display: flex; align-items: flex-end; gap: 5px;
@@ -533,7 +534,7 @@ const apiLabels = {
 /* Middle row: AI Status + Insight side by side */
 .center-middle {
   display: grid;
-  grid-template-columns: 180px 1fr;
+  grid-template-columns: minmax(0, 160px) 1fr;
   gap: 12px;
   align-items: stretch;
 }
@@ -642,11 +643,25 @@ const apiLabels = {
 .health-time { font-size: 10px; color: var(--text-muted); }
 .sk-row { height: 22px; background: var(--card-alt); border-radius: 4px; margin-top: 8px; }
 
-@media (max-width: 1100px) {
-  .panel-layout { grid-template-columns: 200px 1fr 200px; }
+@media (max-width: 1280px) {
+  .panel-layout { grid-template-columns: minmax(0, 180px) 1fr minmax(0, 180px); }
+  .temp-chart-inner { grid-template-columns: 1fr minmax(0, 170px); }
+  .center-middle { grid-template-columns: minmax(0, 140px) 1fr; }
 }
-@media (max-width: 900px) {
+@media (max-width: 1080px) {
+  .panel-layout { grid-template-columns: 1fr 1fr; }
+  .left-col  { grid-column: 1; }
+  .center-col { grid-column: 1 / -1; order: -1; }
+  .right-col { grid-column: 2; }
+  .temp-chart-inner { grid-template-columns: 1fr; }
+  .temp-chart-kpis { border-top: 1px solid var(--border); padding: 14px 20px; grid-template-columns: 1fr 1px 1fr; }
+  .temp-chart-bars { border-right: none; }
+}
+@media (max-width: 720px) {
   .panel-layout { grid-template-columns: 1fr; }
-  .center-bottom { grid-template-columns: 1fr; }
+  .left-col, .center-col, .right-col { grid-column: 1; order: unset; }
+  .center-middle { grid-template-columns: 1fr; }
+  .temp-chart-kpis { grid-template-columns: 1fr; }
+  .kpi-divider { display: none; }
 }
 </style>
