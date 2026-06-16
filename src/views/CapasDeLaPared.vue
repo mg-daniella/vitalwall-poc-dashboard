@@ -16,13 +16,17 @@ function isSelected(floor, section) {
   return selectedSlab.value?.key === `${floor}${section}`
 }
 
-// Colorblind-safe palette (no green/yellow/red)
+// One blue shade per panel — opacity differentiates them
 const layerColor = {
-  'Ventilación':      '#0071BC',
-  'Protección Solar': '#0D9488',
-  'Agua Gris':        '#134E4A',
-  'Energía Solar':    '#5B9BD5',
-  'Confort Térmico':  '#378ADD',
+  'Panel 1A — Fachada Norte': '#378ADD',
+  'Panel 1B — Fachada Norte': '#2E6DB4',
+  'Panel 1C — Fachada Norte': '#5B9BD5',
+  'Panel 2A — Fachada Norte': '#1A56A0',
+  'Panel 2B — Fachada Norte': '#378ADD',
+  'Panel 2C — Fachada Norte': '#2E6DB4',
+  'Panel 3A — Fachada Norte': '#5B9BD5',
+  'Panel 3B — Fachada Norte': '#1A56A0',
+  'Panel 3C — Fachada Norte': '#378ADD',
 }
 
 // Floating metric bubbles
@@ -95,105 +99,58 @@ const WIN_W = 42, WIN_H = 32
         </div>
       </div>
 
-      <!-- Building SVG -->
+      <!-- Building photo + SVG overlay -->
       <div class="svg-wrap">
+
+        <!-- Real building photo as base -->
+        <img class="building-photo" src="/building-facade.png" alt="Fachada del edificio" />
+
+        <!-- SVG slab selectors overlaid on the photo -->
         <svg viewBox="0 0 518 320" class="bldg-svg" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <linearGradient id="skyBg" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%"   stop-color="#EEF2F6"/>
-              <stop offset="100%" stop-color="#E4EAF0"/>
-            </linearGradient>
-            <linearGradient id="facadeGrad" x1="0" y1="0" x2="1" y2="0">
-              <stop offset="0%"   stop-color="#DDE4EC"/>
-              <stop offset="40%"  stop-color="#F0F4F8"/>
-              <stop offset="100%" stop-color="#DDE4EC"/>
-            </linearGradient>
-          </defs>
-
-          <!-- Background sky -->
-          <rect x="0" y="0" width="518" height="320" fill="url(#skyBg)"/>
-
-          <!-- Ground shadow -->
-          <ellipse cx="259" cy="314" rx="220" ry="7" fill="rgba(0,0,0,0.06)"/>
-
-          <!-- Building body -->
-          <rect :x="OX" :y="OY" width="474" height="296" fill="url(#facadeGrad)" rx="3"
-                stroke="rgba(28,25,23,0.1)" stroke-width="0.8"/>
-
-          <!-- Rooftop -->
-          <rect :x="OX" y="12" width="474" height="14" fill="#C8D2DC" rx="2"/>
-          <!-- Rooftop fixtures -->
-          <rect x="75"  y="4"  width="48" height="12" rx="2" fill="#B8C4CE"/>
-          <rect x="228" y="2"  width="64" height="12" rx="2" fill="#B8C4CE"/>
-          <rect x="390" y="4"  width="48" height="12" rx="2" fill="#B8C4CE"/>
-          <!-- Antenna -->
-          <line x1="280" y1="2" x2="280" y2="12" stroke="#A8B4BF" stroke-width="1.5"/>
-          <circle cx="280" cy="2" r="2" fill="#A8B4BF"/>
 
           <!-- Floor labels -->
-          <text x="30" y="74"  font-size="7.5" fill="#A8A29E" font-family="Inter" font-weight="600"
-                text-anchor="middle" transform="rotate(-90 30 74)">PLANTA 3</text>
-          <text x="30" y="172" font-size="7.5" fill="#A8A29E" font-family="Inter" font-weight="600"
-                text-anchor="middle" transform="rotate(-90 30 172)">PLANTA 2</text>
-          <text x="30" y="270" font-size="7.5" fill="#A8A29E" font-family="Inter" font-weight="600"
-                text-anchor="middle" transform="rotate(-90 30 270)">PLANTA 1</text>
+          <text x="22" y="74"  font-size="7" fill="rgba(255,255,255,0.75)" font-family="Inter" font-weight="700"
+                text-anchor="middle" transform="rotate(-90 22 74)">PLANTA 3</text>
+          <text x="22" y="172" font-size="7" fill="rgba(255,255,255,0.75)" font-family="Inter" font-weight="700"
+                text-anchor="middle" transform="rotate(-90 22 172)">PLANTA 2</text>
+          <text x="22" y="270" font-size="7" fill="rgba(255,255,255,0.75)" font-family="Inter" font-weight="700"
+                text-anchor="middle" transform="rotate(-90 22 270)">PLANTA 1</text>
 
           <!-- Section labels -->
-          <text x="131" y="14" font-size="7.5" fill="#A8A29E" font-family="Inter" font-weight="700" text-anchor="middle">A</text>
-          <text x="289" y="14" font-size="7.5" fill="#A8A29E" font-family="Inter" font-weight="700" text-anchor="middle">B</text>
-          <text x="447" y="14" font-size="7.5" fill="#A8A29E" font-family="Inter" font-weight="700" text-anchor="middle">C</text>
+          <text x="131" y="16" font-size="7" fill="rgba(255,255,255,0.75)" font-family="Inter" font-weight="700" text-anchor="middle">A</text>
+          <text x="289" y="16" font-size="7" fill="rgba(255,255,255,0.75)" font-family="Inter" font-weight="700" text-anchor="middle">B</text>
+          <text x="447" y="16" font-size="7" fill="rgba(255,255,255,0.75)" font-family="Inter" font-weight="700" text-anchor="middle">C</text>
 
-          <!-- Slabs -->
+          <!-- Slab selector cells — transparent overlay -->
           <template v-for="(floor, fi) in floors" :key="floor">
             <template v-for="(sec, si) in sections" :key="sec">
-              <!-- Slab bg -->
               <rect
-                :x="sx(si)" :y="sy(fi)" :width="SW - 2" :height="SH - 2" rx="2"
-                :fill="isSelected(floor, sec) ? 'rgba(13,148,136,0.14)' : 'rgba(255,255,255,0.45)'"
-                :stroke="isSelected(floor, sec) ? '#0D9488' : 'rgba(28,25,23,0.09)'"
-                :stroke-width="isSelected(floor, sec) ? 1.5 : 0.7"
-                style="cursor: pointer; transition: fill 0.18s, stroke 0.18s;"
+                :x="sx(si)" :y="sy(fi)" :width="SW - 2" :height="SH - 2" rx="3"
+                :fill="isSelected(floor, sec) ? 'rgba(55,138,221,0.28)' : 'rgba(255,255,255,0.07)'"
+                :stroke="isSelected(floor, sec) ? 'rgba(55,138,221,0.9)' : 'rgba(255,255,255,0.35)'"
+                :stroke-width="isSelected(floor, sec) ? 2 : 1"
+                style="cursor: pointer; transition: fill 0.2s, stroke 0.2s;"
                 @click="selectSlab(floor, sec)"
               />
-              <!-- Windows -->
-              <template v-for="wr in WIN_ROWS" :key="wr">
-                <template v-for="wc in WIN_COLS" :key="wc">
-                  <rect
-                    :x="sx(si) + wc" :y="sy(fi) + wr"
-                    :width="WIN_W" :height="WIN_H" rx="1"
-                    :fill="isSelected(floor, sec) ? 'rgba(13,148,136,0.22)' : 'rgba(13,148,136,0.09)'"
-                    :stroke="isSelected(floor, sec) ? 'rgba(13,148,136,0.35)' : 'rgba(13,148,136,0.13)'"
-                    stroke-width="0.5"
-                    style="pointer-events: none;"
-                  />
-                  <!-- Window glare line -->
-                  <line
-                    :x1="sx(si) + wc + 3" :y1="sy(fi) + wr + 3"
-                    :x2="sx(si) + wc + 3" :y2="sy(fi) + wr + WIN_H - 4"
-                    stroke="rgba(255,255,255,0.5)" stroke-width="1"
-                    style="pointer-events: none;"
-                  />
-                </template>
-              </template>
-              <!-- Selected layer label -->
+              <!-- Selected state: layer label inside cell -->
               <text
                 v-if="isSelected(floor, sec)"
-                :x="sx(si) + (SW - 2) / 2" :y="sy(fi) + SH - 10"
-                font-size="6.5" fill="#0D9488" font-family="Inter" font-weight="700"
-                text-anchor="middle" style="pointer-events: none; letter-spacing: 0.3px;"
+                :x="sx(si) + (SW - 2) / 2" :y="sy(fi) + (SH - 2) / 2 + 3"
+                font-size="8" fill="white" font-family="Inter" font-weight="700"
+                text-anchor="middle" style="pointer-events: none; letter-spacing: 0.5px;"
               >{{ dummyWallSections[`${floor}${sec}`]?.layer?.toUpperCase() }}</text>
             </template>
           </template>
 
-          <!-- Floor separators -->
-          <line :x1="OX" y1="120" :x2="OX+474" y2="120" stroke="rgba(28,25,23,0.07)" stroke-width="0.8"/>
-          <line :x1="OX" y1="218" :x2="OX+474" y2="218" stroke="rgba(28,25,23,0.07)" stroke-width="0.8"/>
-          <!-- Section separators -->
-          <line x1="200" :y1="OY" x2="200" :y2="OY+296" stroke="rgba(28,25,23,0.07)" stroke-width="0.8"/>
-          <line x1="358" :y1="OY" x2="358" :y2="OY+296" stroke="rgba(28,25,23,0.07)" stroke-width="0.8"/>
+          <!-- Subtle floor separators -->
+          <line :x1="OX" y1="120" :x2="OX+474" y2="120" stroke="rgba(255,255,255,0.25)" stroke-width="0.8"/>
+          <line :x1="OX" y1="218" :x2="OX+474" y2="218" stroke="rgba(255,255,255,0.25)" stroke-width="0.8"/>
+          <!-- Subtle section separators -->
+          <line x1="200" :y1="OY" x2="200" :y2="OY+296" stroke="rgba(255,255,255,0.25)" stroke-width="0.8"/>
+          <line x1="358" :y1="OY" x2="358" :y2="OY+296" stroke="rgba(255,255,255,0.25)" stroke-width="0.8"/>
 
-          <!-- Prompt text when nothing selected -->
-          <text v-if="!selectedSlab" x="259" y="312" font-size="8.5" fill="#A8A29E"
+          <!-- Hint text -->
+          <text v-if="!selectedSlab" x="259" y="312" font-size="8" fill="rgba(255,255,255,0.55)"
                 font-family="Inter" text-anchor="middle">
             Selecciona una sección para explorar
           </text>
@@ -339,14 +296,31 @@ const WIN_W = 42, WIN_H = 32
 
 .svg-wrap {
   flex: 1;
+  position: relative;
+  min-width: 0;
+  border-radius: 10px;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  justify-content: center;
-  gap: 8px;
-  min-width: 0;
 }
-.bldg-svg { width: 100%; max-width: 680px; height: auto; display: block; }
+.building-photo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+  border-radius: 10px;
+}
+.bldg-svg {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: auto;
+  display: block;
+}
 
 /* Metric bubbles column */
 .bubbles-left {
@@ -387,13 +361,21 @@ html.dark .metric-bubble { background: rgba(44,42,39,0.92); }
 
 /* Selected slab badge */
 .selected-badge {
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
   display: flex; align-items: center; gap: 8px;
   font-size: 12px; font-weight: 500; color: var(--blue-raw);
-  background: rgba(13,148,136,0.07);
-  border: 1px solid rgba(13,148,136,0.18);
-  border-radius: 6px; padding: 8px 12px;
-  margin-top: 8px;
+  background: rgba(255,255,255,0.92);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(55,138,221,0.3);
+  border-radius: 20px; padding: 8px 14px;
+  white-space: nowrap;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.12);
 }
+html.dark .selected-badge { background: rgba(30,30,30,0.92); }
 .clear-btn {
   margin-left: auto; font-size: 13px; color: var(--text-muted);
   cursor: pointer; padding: 2px; display: flex;
