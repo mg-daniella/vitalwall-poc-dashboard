@@ -618,11 +618,11 @@ const apiLabels = {
   border: 1px solid var(--border); border-radius: 6px; overflow: hidden;
   margin-top: 12px;
 }
-.cond-cell { background: var(--card-bg); padding: 12px 10px; min-width: 0; }
-.cond-lbl { font-size: 9px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); margin-bottom: 6px; white-space: normal; word-break: break-word; }
-.cond-row { display: flex; align-items: baseline; gap: 2px; min-width: 0; }
-.cond-val { font-size: 20px; font-weight: 700; color: var(--text); letter-spacing: -0.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
-.cond-unit { font-size: 10px; color: var(--text-secondary); flex-shrink: 0; }
+.cond-cell { background: var(--card-bg); padding: 10px 8px; }
+.cond-lbl { font-size: 8px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); margin-bottom: 5px; line-height: 1.3; }
+.cond-row { display: flex; align-items: baseline; gap: 2px; flex-wrap: nowrap; }
+.cond-val { font-size: 18px; font-weight: 700; color: var(--text); letter-spacing: -0.3px; white-space: nowrap; }
+.cond-unit { font-size: 9px; color: var(--text-secondary); white-space: nowrap; }
 .cond-icon { display: none; }
 
 .prog-card { padding: 18px; }
