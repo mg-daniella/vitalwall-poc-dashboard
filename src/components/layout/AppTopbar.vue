@@ -21,7 +21,7 @@ const siteOpen     = ref(false)
 function selectSite(s) { selectedSite.value = s; siteOpen.value = false }
 
 const viewMeta = {
-  '/':            { title: 'Panel General',     sub: 'Vista unificada del sistema VitalWall' },
+  '/':            { title: 'Panel General',     sub: 'Vista unificada del sistema Vital Shell' },
   '/cerebro':     { title: 'Cerebro Activo',    sub: 'Flujo de eventos en tiempo real' },
   '/decisiones':  { title: 'Decisiones IA',     sub: 'Gestión de reglas y override manual' },
   '/capas':       { title: 'Capas de la Pared', sub: 'Interacción con la fachada inteligente' },

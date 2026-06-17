@@ -83,8 +83,7 @@ function isActive(to) { return route.path === to }
 
     <!-- Brand -->
     <div class="brand">
-      <div class="brand-name">VitalWall</div>
-      <div class="brand-sub">POC Dashboard</div>
+      <div class="brand-name">VITAL SHELL</div>
     </div>
 
     <!-- Live indicator -->
