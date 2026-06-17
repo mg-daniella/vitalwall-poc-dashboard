@@ -1,0 +1,6 @@
+{
+  "rewrites": [
+    { "source": "/iot/:path*", "destination": "http://165.232.91.249:3001/:path*" },
+    { "source": "/iot",        "destination": "http://165.232.91.249:3001" }
+  ]
+}

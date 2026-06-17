@@ -11,9 +11,18 @@ import { useSystemHealthStore }from '@/stores/systemHealth'
 import { useWebSocketStore }   from '@/stores/websocket'
 import { useToastsStore }      from '@/stores/toasts'
 
-const WS_URL    = import.meta.env.VITE_WS_URL
-const API_KEY   = import.meta.env.VITE_API_KEY
-const USE_DUMMY = import.meta.env.VITE_USE_DUMMY === 'true'
+const _WS_URL_ENV = import.meta.env.VITE_WS_URL
+const API_KEY     = import.meta.env.VITE_API_KEY
+const USE_DUMMY   = import.meta.env.VITE_USE_DUMMY === 'true'
+
+function getWsUrl() {
+  const isHttps = typeof window !== 'undefined' && window.location.protocol === 'https:'
+  if (!_WS_URL_ENV || (isHttps && _WS_URL_ENV.startsWith('ws://'))) {
+    const proto = isHttps ? 'wss' : 'ws'
+    return `${proto}://${window.location.host}/iot`
+  }
+  return _WS_URL_ENV
+}
 
 const INITIAL_DELAY = 1000
 const MAX_DELAY     = 30000
@@ -41,7 +50,7 @@ function connect() {
 
   intentionalClose = false
   try {
-    ws = new WebSocket(`${WS_URL}?apiKey=${API_KEY}`)
+    ws = new WebSocket(`${getWsUrl()}?apiKey=${API_KEY}`)
   } catch (err) {
     handleConnectError(err)
     scheduleReconnect()

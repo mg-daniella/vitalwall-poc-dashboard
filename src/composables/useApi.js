@@ -4,9 +4,17 @@ import {
   dummyMetrics, dummyRules, dummySystemHealth, dummyHistory
 } from '@/data/dummy'
 
-const USE_DUMMY = import.meta.env.VITE_USE_DUMMY === 'true'
-const API_URL   = import.meta.env.VITE_API_URL
-const API_KEY   = import.meta.env.VITE_API_KEY
+const USE_DUMMY   = import.meta.env.VITE_USE_DUMMY === 'true'
+const _API_URL_ENV = import.meta.env.VITE_API_URL
+const API_KEY     = import.meta.env.VITE_API_KEY
+
+function getApiUrl() {
+  const isHttps = typeof window !== 'undefined' && window.location.protocol === 'https:'
+  if (!_API_URL_ENV || (isHttps && _API_URL_ENV.startsWith('http://'))) {
+    return typeof window !== 'undefined' ? `${window.location.origin}/iot` : '/iot'
+  }
+  return _API_URL_ENV
+}
 
 // ─── Request deduplication ───────────────────────────────────────
 // Multiple stores call getInitialData() simultaneously; cache the in-flight
@@ -37,7 +45,7 @@ async function apiFetch(path, options = {}) {
   let lastError
   for (let i = 1; i <= MAX_RETRIES; i++) {
     try {
-      const res = await fetch(`${API_URL}${path}`, {
+      const res = await fetch(`${getApiUrl()}${path}`, {
         ...options,
         headers: {
           'Content-Type': 'application/json',
