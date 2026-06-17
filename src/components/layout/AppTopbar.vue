@@ -10,7 +10,7 @@ const wsStore = useWebSocketStore()
 
 // ── Site selector ──
 const sites = [
-  { id: 'hq',           label: 'Cosentino HQ',      sub: 'Almería, España'     },
+  { id: 'hq',           label: 'Cosentino HQ',      sub: 'Barcelona, España'   },
   { id: 'canada',       label: 'Edificio Canadá',    sub: 'Canadá'              },
   { id: 'argelia',      label: 'Edificio Argelia',   sub: 'Argelia'             },
   { id: 'consolidados', label: 'Datos Consolidados', sub: 'Todos los edificios' },

@@ -111,7 +111,7 @@ const maxEnergy = Math.max(...timeline.map(t => t.energy))
       <div class="esg-header-right">
         <div class="esg-badge">
           <i class="ti ti-certificate" aria-hidden="true"></i>
-          Cosentino HQ · Almería
+          Cosentino HQ · Barcelona
         </div>
         <button class="download-btn" @click="downloadReport">
           <i class="ti ti-download" aria-hidden="true"></i>
@@ -168,7 +168,7 @@ const maxEnergy = Math.max(...timeline.map(t => t.energy))
       <div class="trend-header">
         <div>
           <div class="trend-title">Tendencia CO₂ y Energía Renovable</div>
-          <div class="trend-sub">Últimos 6 meses · Cosentino HQ Almería</div>
+          <div class="trend-sub">Últimos 6 meses · Cosentino HQ Barcelona</div>
         </div>
         <div class="trend-legend">
           <span class="leg-item"><span class="leg-dot solid"></span>CO₂ (t)</span>

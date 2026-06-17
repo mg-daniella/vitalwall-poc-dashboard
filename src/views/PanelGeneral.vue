@@ -82,7 +82,7 @@ const apiLabels = {
         <!-- Building hero card -->
         <div class="card building-card">
           <div class="building-name">Cosentino HQ</div>
-          <div class="building-loc"><i class="ti ti-map-pin" aria-hidden="true"></i> Cantoria, Almería</div>
+          <div class="building-loc"><i class="ti ti-map-pin" aria-hidden="true"></i> Barcelona</div>
 
           <div class="hero-temp">
             <span class="hero-num">{{ sensors.temperature?.value ?? '—' }}</span>
