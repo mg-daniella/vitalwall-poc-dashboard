@@ -1,5 +1,5 @@
 <script setup>
-import { computed } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useSensorsStore }      from '@/stores/sensors'
 import { useEnvironmentStore }  from '@/stores/environment'
 import { useMetricsStore }      from '@/stores/metrics'
@@ -75,6 +75,14 @@ const progressBars = computed(() => [
 ])
 function barPct(b) { return Math.min((b.value / b.max) * 100, 100) }
 
+// ── Animations ──
+const tempFlash = ref(false)
+watch(() => sensors.temperature?.value, (val, old) => {
+  if (old == null || val === old) return
+  tempFlash.value = true
+  setTimeout(() => { tempFlash.value = false }, 600)
+})
+
 // ── System health ──
 const apiLabels = {
   open_meteo: 'Open-Meteo', nasa_power: 'NASA Power',
@@ -96,7 +104,7 @@ const apiLabels = {
           <div class="building-loc"><i class="ti ti-map-pin" aria-hidden="true"></i> Barcelona</div>
 
           <div class="hero-temp">
-            <span class="hero-num">{{ sensors.temperature?.value ?? '—' }}</span>
+            <span class="hero-num" :class="{ 'temp-flash': tempFlash }">{{ sensors.temperature?.value ?? '—' }}</span>
             <span class="hero-unit">°C</span>
           </div>
 
@@ -273,7 +281,7 @@ const apiLabels = {
           <ErrorState v-else-if="rules.error" compact :message="rules.error.message" @retry="rules.retry()" />
           <div v-else-if="!previewRules.length" class="chart-empty">Sin reglas activas</div>
 
-          <div v-else class="rules-list">
+          <TransitionGroup v-else tag="div" name="rule-slide" class="rules-list">
             <div v-for="rule in previewRules" :key="rule.id" class="pg-rule-card"
                  :style="{ '--accent': statusMeta[rule.status]?.accent || 'var(--text-muted)' }">
               <div class="pg-rule-stripe">
@@ -298,7 +306,7 @@ const apiLabels = {
                 </div>
               </div>
             </div>
-          </div>
+          </TransitionGroup>
         </div>
       </div>
 
@@ -674,5 +682,22 @@ const apiLabels = {
   .cmp-divider { display: none; }
   .cmp-block { padding: 0 0 16px; border-bottom: 1px solid var(--border); }
   .cmp-block:last-child { border-bottom: none; padding-bottom: 0; }
+}
+
+/* ── Temperature flash ── */
+@keyframes temp-flash {
+  0%   { color: var(--text); }
+  30%  { color: var(--blue-raw); }
+  100% { color: var(--text); }
+}
+.temp-flash { animation: temp-flash 0.6s ease-out; }
+
+/* ── Rule slide-in ── */
+.rule-slide-enter-active {
+  transition: opacity 0.35s ease, transform 0.35s ease;
+}
+.rule-slide-enter-from {
+  opacity: 0;
+  transform: translateY(-6px);
 }
 </style>
