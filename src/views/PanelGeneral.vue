@@ -18,25 +18,22 @@ const rules   = useRulesStore()
 const health  = useSystemHealthStore()
 const { relativeTime } = useRelativeTime()
 
-// ── Forecast helpers — overnight window 00:00–11:00 ──
-const allForecast = computed(() => env.forecast || [])
-const forecast = computed(() => {
-  // Find the entry for 00:00 and return 12 consecutive hours from midnight
-  const arr = allForecast.value
-  const midnightIdx = arr.findIndex(f => String(f.hour ?? '').startsWith('00'))
-  if (midnightIdx !== -1) return arr.slice(midnightIdx, midnightIdx + 12)
-  // Fallback: first 12 entries
-  return arr.slice(0, 12)
-})
-const temps   = computed(() => allForecast.value.map(f => f.temp ?? 0).filter(t => t != null))
-const maxTemp = computed(() => temps.value.length ? Math.max(...temps.value) : 30)
-const minTemp = computed(() => temps.value.length ? Math.min(...temps.value) : 15)
+// ── KPI trio ──
+const estabilidad = computed(() => metrics.comfort_score?.value ?? 85)
+const estabilidadOk = computed(() => estabilidad.value >= 95)
 
-function tempNormPct(temp) {
-  if (temp == null) return 20
-  const range = maxTemp.value - minTemp.value || 1
-  return Math.round(((temp - minTemp.value) / range) * 62 + 18)
-}
+const captacion = computed(() => metrics.water_harvested_today?.value ?? null)
+const captacionOk = computed(() => captacion.value != null && captacion.value > 20)
+
+const energySrc = computed(() => metrics.energy_source || {})
+const balanceNeto = computed(() => {
+  const { solar_pct = 0, battery_pct = 0, grid_pct = 0 } = energySrc.value
+  return Math.round(solar_pct + battery_pct - grid_pct)
+})
+const balanceOk = computed(() => balanceNeto.value >= 0)
+
+function kpiBarPct(value, max) { return Math.min(Math.round((value / max) * 100), 100) }
+function targetPct(target, max) { return Math.min(Math.round((target / max) * 100), 100) }
 
 // ── Rules ──
 const statusMeta = {
@@ -148,88 +145,53 @@ const apiLabels = {
       <!-- ══ CENTER ══ -->
       <div class="center-col">
 
-        <!-- Temperature bar chart + comparison metrics -->
-        <div class="card temp-chart-card">
-          <div class="temp-chart-inner">
+        <!-- KPI Trio -->
+        <div class="card kpi-trio-card">
+          <div class="kpi-trio">
 
-            <!-- Left: bars -->
-            <div class="temp-chart-bars">
-              <div class="card-hd">
-                <div>
-                  <div class="card-title-sm">Tendencia de Temperatura</div>
-                  <div class="card-subtitle">Temperatura exterior · 00:00 — 11:00</div>
-                </div>
+            <!-- Estabilidad térmica -->
+            <div class="trio-kpi">
+              <div class="trio-label">Estabilidad térmica</div>
+              <div class="trio-value" :class="estabilidadOk ? 'kpi-ok' : 'kpi-warn'">
+                {{ estabilidad }}<span class="trio-unit">%</span>
               </div>
-              <div v-if="!forecast.length" class="chart-empty">Sin datos de previsión disponibles</div>
-              <div v-else class="temp-bars-wrap">
-                <div
-                  v-for="(f, i) in forecast"
-                  :key="f.hour || i"
-                  class="temp-col"
-                  :class="{ current: i === 0 }"
-                >
-                  <div class="tb-label">{{ f.temp != null ? f.temp + '°' : '—' }}</div>
-                  <div class="tb-track">
-                    <div class="tb-fill" :style="{ height: tempNormPct(f.temp) + '%' }"></div>
-                    <div v-if="i === 0" class="tb-dot" :style="{ bottom: tempNormPct(f.temp) + '%' }"></div>
-                  </div>
-                  <div class="tb-hour">{{ f.hour }}</div>
-                </div>
+              <div class="trio-target">Objetivo ≥95%</div>
+              <div class="trio-track">
+                <div class="trio-fill" :class="estabilidadOk ? 'fill-ok' : 'fill-warn'"
+                     :style="{ width: kpiBarPct(estabilidad, 100) + '%' }"></div>
+                <div class="trio-marker" :style="{ left: targetPct(95, 100) + '%' }"></div>
               </div>
             </div>
 
-            <!-- Right: comparison KPIs -->
-            <div class="temp-chart-kpis">
-              <!-- Water harvested -->
-              <div class="kpi-block">
-                <div class="kpi-header">
-                  <i class="ti ti-droplet kpi-icon" aria-hidden="true"></i>
-                  <span class="kpi-label">Agua captada</span>
-                </div>
-                <div class="kpi-today">
-                  {{ metrics.water_harvested_today?.value ?? '142' }}<span class="kpi-unit">L</span>
-                </div>
-                <div class="kpi-compare">
-                  <span class="kpi-delta up">
-                    <i class="ti ti-arrow-up" aria-hidden="true"></i>+18%
-                  </span>
-                  <span class="kpi-vs">vs ayer <strong>120 L</strong></span>
-                </div>
-                <div class="kpi-bar-track">
-                  <div class="kpi-bar-today" style="width: 72%"></div>
-                  <div class="kpi-bar-yest"  style="width: 60%"></div>
-                </div>
-                <div class="kpi-bar-legend">
-                  <span><span class="leg-dot today"></span>Hoy</span>
-                  <span><span class="leg-dot yest"></span>Ayer</span>
-                </div>
+            <div class="trio-sep"></div>
+
+            <!-- Captación de agua -->
+            <div class="trio-kpi">
+              <div class="trio-label">Captación de agua</div>
+              <div class="trio-value" :class="captacionOk ? 'kpi-ok' : 'kpi-warn'">
+                {{ captacion ?? '—' }}<span class="trio-unit">L/m²</span>
               </div>
+              <div class="trio-target">Objetivo >20 L/m²</div>
+              <div class="trio-track" v-if="captacion != null">
+                <div class="trio-fill" :class="captacionOk ? 'fill-ok' : 'fill-warn'"
+                     :style="{ width: kpiBarPct(captacion, 30) + '%' }"></div>
+                <div class="trio-marker" :style="{ left: targetPct(20, 30) + '%' }"></div>
+              </div>
+            </div>
 
-              <div class="kpi-divider"></div>
+            <div class="trio-sep"></div>
 
-              <!-- Energy generated -->
-              <div class="kpi-block">
-                <div class="kpi-header">
-                  <i class="ti ti-bolt kpi-icon" aria-hidden="true"></i>
-                  <span class="kpi-label">Energía generada</span>
-                </div>
-                <div class="kpi-today">
-                  {{ metrics.energy_generated_today?.value ?? '38.4' }}<span class="kpi-unit">kWh</span>
-                </div>
-                <div class="kpi-compare">
-                  <span class="kpi-delta up">
-                    <i class="ti ti-arrow-up" aria-hidden="true"></i>+7%
-                  </span>
-                  <span class="kpi-vs">vs ayer <strong>35.9 kWh</strong></span>
-                </div>
-                <div class="kpi-bar-track">
-                  <div class="kpi-bar-today" style="width: 80%"></div>
-                  <div class="kpi-bar-yest"  style="width: 74%"></div>
-                </div>
-                <div class="kpi-bar-legend">
-                  <span><span class="leg-dot today"></span>Hoy</span>
-                  <span><span class="leg-dot yest"></span>Ayer</span>
-                </div>
+            <!-- Balance energético neto -->
+            <div class="trio-kpi">
+              <div class="trio-label">Balance energético neto</div>
+              <div class="trio-value" :class="balanceOk ? 'kpi-ok' : 'kpi-warn'">
+                {{ balanceNeto >= 0 ? '+' : '' }}{{ balanceNeto }}<span class="trio-unit">%</span>
+              </div>
+              <div class="trio-target">Objetivo ≥0%</div>
+              <div class="trio-track">
+                <div class="trio-fill" :class="balanceOk ? 'fill-ok' : 'fill-warn'"
+                     :style="{ width: kpiBarPct(Math.max(balanceNeto, 0), 100) + '%' }"></div>
+                <div class="trio-marker" style="left: 0%"></div>
               </div>
             </div>
 
@@ -437,99 +399,49 @@ const apiLabels = {
 /* ══ CENTER ══ */
 .center-col { display: flex; flex-direction: column; gap: 12px; }
 
-/* Temp bar chart */
-.temp-chart-card { padding: 0; overflow: hidden; }
-.temp-chart-inner { display: grid; grid-template-columns: 1fr 240px; min-height: 0; }
-.temp-chart-bars { padding: 18px 20px 14px; border-right: 1px solid var(--border); }
-.temp-bars-wrap {
-  display: flex; align-items: flex-end; gap: 5px;
-  height: 100px; overflow-x: auto;
-  padding: 0 2px 2px; margin-top: 4px;
-  scrollbar-width: thin;
-}
-
-/* Comparison KPIs */
-.temp-chart-kpis {
-  padding: 16px 14px;
+/* KPI Trio */
+.kpi-trio-card { padding: 20px 24px; }
+.kpi-trio {
   display: grid;
-  grid-template-columns: 1fr 1px 1fr;
+  grid-template-columns: 1fr 1px 1fr 1px 1fr;
   gap: 0;
-  align-items: center;
+  align-items: start;
 }
-.kpi-block { display: flex; flex-direction: column; gap: 5px; padding: 0 12px; }
-.kpi-block:first-child { padding-left: 0; }
-.kpi-block:last-child  { padding-right: 0; }
-.kpi-divider { width: 1px; height: 75%; background: var(--border); align-self: center; }
+.trio-sep { width: 1px; background: var(--border); align-self: stretch; margin: 0 20px; }
 
-.kpi-header { display: flex; align-items: center; gap: 6px; }
-.kpi-icon { font-size: 14px; color: var(--blue-raw); }
-.kpi-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.7px; color: var(--text-muted); }
+.trio-kpi { display: flex; flex-direction: column; gap: 6px; }
 
-.kpi-today { font-size: 22px; font-weight: 700; letter-spacing: -0.5px; color: var(--text); line-height: 1.1; }
-.kpi-unit  { font-size: 12px; color: var(--text-secondary); margin-left: 2px; font-weight: 500; }
+.trio-label {
+  font-size: 10px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.7px; color: var(--text-muted);
+}
+.trio-value {
+  font-size: 28px; font-weight: 700; letter-spacing: -1px; line-height: 1;
+}
+.trio-value.kpi-ok   { color: var(--green); }
+.trio-value.kpi-warn { color: var(--amber); }
+.trio-unit { font-size: 13px; font-weight: 500; margin-left: 2px; color: inherit; opacity: 0.7; }
 
-.kpi-compare { display: flex; align-items: center; gap: 8px; }
-.kpi-delta {
-  display: inline-flex; align-items: center; gap: 2px;
-  font-size: 10px; font-weight: 700;
-  padding: 2px 6px; border-radius: 4px;
-}
-.kpi-delta.up   { background: rgba(55,138,221,0.10); color: var(--blue-raw); }
-.kpi-delta.down { background: var(--card-alt); color: var(--text-muted); }
-.kpi-delta .ti  { font-size: 9px; }
-.kpi-vs { font-size: 10px; color: var(--text-muted); }
-.kpi-vs strong  { color: var(--text-secondary); font-weight: 600; }
-
-.kpi-bar-track { position: relative; height: 18px; display: flex; flex-direction: column; gap: 4px; margin-top: 4px; }
-.kpi-bar-today, .kpi-bar-yest {
-  height: 6px; border-radius: 3px; transition: width 0.4s;
-}
-.kpi-bar-today { background: var(--blue-raw); opacity: 0.9; }
-.kpi-bar-yest  { background: var(--blue-raw); opacity: 0.25; }
-
-.kpi-bar-legend { display: flex; gap: 12px; }
-.kpi-bar-legend span { display: flex; align-items: center; gap: 4px; font-size: 9px; color: var(--text-muted); }
-.leg-dot { width: 8px; height: 6px; border-radius: 2px; flex-shrink: 0; }
-.leg-dot.today { background: var(--blue-raw); opacity: 0.9; }
-.leg-dot.yest  { background: var(--blue-raw); opacity: 0.3; }
-.temp-col {
-  display: flex; flex-direction: column; align-items: center;
-  flex-shrink: 0; width: 38px;
-}
-.tb-label {
-  font-size: 10px; font-weight: 600; color: var(--text-muted);
-  margin-bottom: 5px; height: 14px;
-}
-.temp-col.current .tb-label { color: var(--text); }
-
-.tb-track {
-  width: 24px; height: 64px;
-  background: var(--card-alt);
-  border-radius: 5px;
-  position: relative;
-  display: flex; flex-direction: column; justify-content: flex-end;
-  overflow: visible;
-}
-.tb-fill {
-  background: var(--blue-raw);
-  border-radius: 5px;
-  opacity: 0.28;
-  transition: height 0.4s;
-}
-.temp-col.current .tb-fill { opacity: 1; }
-.tb-dot {
-  position: absolute; left: 50%; transform: translate(-50%, 50%);
-  width: 14px; height: 14px; border-radius: 50%;
-  background: var(--blue-raw);
-  border: 2.5px solid var(--card-bg);
-  box-shadow: 0 0 0 1.5px var(--blue-raw);
+.trio-target {
+  font-size: 10px; color: var(--text-muted); font-weight: 500;
 }
 
-.tb-hour {
-  font-size: 9px; color: var(--text-muted);
-  margin-top: 6px; text-align: center; line-height: 1;
+.trio-track {
+  position: relative; height: 6px;
+  background: var(--card-alt); border-radius: 3px;
+  margin-top: 4px; overflow: visible;
 }
-.temp-col.current .tb-hour { color: var(--blue-raw); font-weight: 700; font-size: 9px; }
+.trio-fill {
+  height: 100%; border-radius: 3px; transition: width 0.4s;
+}
+.trio-fill.fill-ok   { background: var(--green); opacity: 0.85; }
+.trio-fill.fill-warn { background: var(--amber); opacity: 0.85; }
+
+.trio-marker {
+  position: absolute; top: -4px; bottom: -4px;
+  width: 2px; background: var(--border-strong);
+  border-radius: 1px; transform: translateX(-50%);
+}
 
 /* Middle row: AI Status + Insight side by side */
 .center-middle {
@@ -643,16 +555,6 @@ const apiLabels = {
 .health-time { font-size: 10px; color: var(--text-muted); }
 .sk-row { height: 22px; background: var(--card-alt); border-radius: 4px; margin-top: 8px; }
 
-@media (max-width: 1380px) {
-  /* Stack KPIs below bars so neither gets squeezed */
-  .temp-chart-inner { grid-template-columns: 1fr; }
-  .temp-chart-bars  { border-right: none; border-bottom: 1px solid var(--border); }
-  .temp-chart-kpis  {
-    padding: 14px 20px 16px;
-    grid-template-columns: 1fr 1px 1fr;
-    border-top: none;
-  }
-}
 @media (max-width: 1200px) {
   .panel-layout { grid-template-columns: minmax(0, 180px) 1fr minmax(0, 180px); }
   .center-middle { grid-template-columns: minmax(0, 140px) 1fr; }
@@ -665,7 +567,9 @@ const apiLabels = {
   .panel-layout { grid-template-columns: 1fr; }
   .left-col, .center-col, .right-col { grid-column: 1; order: unset; }
   .center-middle { grid-template-columns: 1fr; }
-  .temp-chart-kpis { grid-template-columns: 1fr; }
-  .kpi-divider { display: none; }
+  .kpi-trio { grid-template-columns: 1fr; }
+  .trio-sep { display: none; }
+  .trio-kpi { padding-bottom: 16px; border-bottom: 1px solid var(--border); }
+  .trio-kpi:last-child { border-bottom: none; padding-bottom: 0; }
 }
 </style>
