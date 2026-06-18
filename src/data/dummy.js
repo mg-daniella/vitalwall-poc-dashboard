@@ -164,15 +164,15 @@ export const dummyHistory = {
 
 // Wall layer sections (9 slabs: 3 floors × 3 sections)
 export const dummyWallSections = {
-  '1A': { floor: 'Planta 1', section: 'A', layer: 'Panel 1A — Fachada Norte', temp: 24.1, humidity: 48, solar_gain: 320, air_flow: 0.8, insulation: 92 },
-  '1B': { floor: 'Planta 1', section: 'B', layer: 'Panel 1B — Fachada Norte', temp: 25.3, humidity: 46, solar_gain: 410, air_flow: 0.6, insulation: 88 },
-  '1C': { floor: 'Planta 1', section: 'C', layer: 'Panel 1C — Fachada Norte', temp: 23.8, humidity: 52, solar_gain: 290, air_flow: 0.9, insulation: 94 },
-  '2A': { floor: 'Planta 2', section: 'A', layer: 'Panel 2A — Fachada Norte', temp: 26.5, humidity: 44, solar_gain: 480, air_flow: 0.7, insulation: 90 },
-  '2B': { floor: 'Planta 2', section: 'B', layer: 'Panel 2B — Fachada Norte', temp: 25.8, humidity: 45, solar_gain: 395, air_flow: 0.8, insulation: 91 },
-  '2C': { floor: 'Planta 2', section: 'C', layer: 'Panel 2C — Fachada Norte', temp: 24.9, humidity: 47, solar_gain: 350, air_flow: 1.0, insulation: 89 },
-  '3A': { floor: 'Planta 3', section: 'A', layer: 'Panel 3A — Fachada Norte', temp: 28.2, humidity: 41, solar_gain: 520, air_flow: 0.5, insulation: 87 },
-  '3B': { floor: 'Planta 3', section: 'B', layer: 'Panel 3B — Fachada Norte', temp: 27.6, humidity: 43, solar_gain: 505, air_flow: 0.6, insulation: 88 },
-  '3C': { floor: 'Planta 3', section: 'C', layer: 'Panel 3C — Fachada Norte', temp: 27.0, humidity: 42, solar_gain: 465, air_flow: 0.7, insulation: 90 }
+  '1A': { floor: 'Planta 1', section: 'A', layer: 'Panel 1A — Fachada Norte', temp: 24.1, humidity: 48, solar_gain: 320, air_flow: 0.8, insulation: 92, water_lm2: 18.4, energy_wm2: 28.1 },
+  '1B': { floor: 'Planta 1', section: 'B', layer: 'Panel 1B — Fachada Norte', temp: 25.3, humidity: 46, solar_gain: 410, air_flow: 0.6, insulation: 88, water_lm2: 22.7, energy_wm2: 35.6 },
+  '1C': { floor: 'Planta 1', section: 'C', layer: 'Panel 1C — Fachada Norte', temp: 23.8, humidity: 52, solar_gain: 290, air_flow: 0.9, insulation: 94, water_lm2: 15.2, energy_wm2: 24.3 },
+  '2A': { floor: 'Planta 2', section: 'A', layer: 'Panel 2A — Fachada Norte', temp: 26.5, humidity: 44, solar_gain: 480, air_flow: 0.7, insulation: 90, water_lm2: 26.3, energy_wm2: 41.8 },
+  '2B': { floor: 'Planta 2', section: 'B', layer: 'Panel 2B — Fachada Norte', temp: 25.8, humidity: 45, solar_gain: 395, air_flow: 0.8, insulation: 91, water_lm2: 21.5, energy_wm2: 34.2 },
+  '2C': { floor: 'Planta 2', section: 'C', layer: 'Panel 2C — Fachada Norte', temp: 24.9, humidity: 47, solar_gain: 350, air_flow: 1.0, insulation: 89, water_lm2: 19.8, energy_wm2: 30.7 },
+  '3A': { floor: 'Planta 3', section: 'A', layer: 'Panel 3A — Fachada Norte', temp: 28.2, humidity: 41, solar_gain: 520, air_flow: 0.5, insulation: 87, water_lm2: 29.1, energy_wm2: 46.5 },
+  '3B': { floor: 'Planta 3', section: 'B', layer: 'Panel 3B — Fachada Norte', temp: 27.6, humidity: 43, solar_gain: 505, air_flow: 0.6, insulation: 88, water_lm2: 27.4, energy_wm2: 44.0 },
+  '3C': { floor: 'Planta 3', section: 'C', layer: 'Panel 3C — Fachada Norte', temp: 27.0, humidity: 42, solar_gain: 465, air_flow: 0.7, insulation: 90, water_lm2: 24.9, energy_wm2: 40.2 }
 }
 
 export const dummyApiLog = [

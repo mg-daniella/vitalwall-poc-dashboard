@@ -35,6 +35,8 @@ const bubbles = computed(() => [
   { label: 'Gan. solar',  value: selectedSlab.value?.solar_gain, unit: 'W/m²', icon: 'ti-sun'         },
   { label: 'Humedad',     value: selectedSlab.value?.humidity,   unit: '%',    icon: 'ti-droplet'     },
   { label: 'Flujo aire',  value: selectedSlab.value?.air_flow,   unit: 'm/s',  icon: 'ti-wind'        },
+  { label: 'Agua',        value: selectedSlab.value?.water_lm2,  unit: 'L/m²', icon: 'ti-droplet-half'},
+  { label: 'Energía',     value: selectedSlab.value?.energy_wm2, unit: 'W/m²', icon: 'ti-bolt'        },
 ])
 
 // Layer distribution across 9 slabs
