@@ -18,22 +18,36 @@ const rules   = useRulesStore()
 const health  = useSystemHealthStore()
 const { relativeTime } = useRelativeTime()
 
-// ── KPI trio ──
-const estabilidad = computed(() => metrics.comfort_score?.value ?? 85)
-const estabilidadOk = computed(() => estabilidad.value >= 95)
+// ── Water L/m² ──
+const waterLm2Val = computed(() => metrics.water_lm2?.value ?? 9.5)
+const waterLm2Ok  = computed(() => waterLm2Val.value > 20)
 
-const captacion = computed(() => metrics.water_harvested_today?.value ?? null)
-const captacionOk = computed(() => captacion.value != null && captacion.value > 20)
-
-const energySrc = computed(() => metrics.energy_source || {})
-const balanceNeto = computed(() => {
-  const { solar_pct = 0, battery_pct = 0, grid_pct = 0 } = energySrc.value
-  return Math.round(solar_pct + battery_pct - grid_pct)
+// ── Energy status card ──
+const batteryVal = computed(() => sensors.battery_level?.value ?? null)
+const batteryClass = computed(() => {
+  if (batteryVal.value == null) return ''
+  if (batteryVal.value >= 50) return 'bat-ok'
+  if (batteryVal.value >= 20) return 'bat-warn'
+  return 'bat-low'
 })
-const balanceOk = computed(() => balanceNeto.value >= 0)
+const batteryFillClass = computed(() => batteryClass.value)
 
-function kpiBarPct(value, max) { return Math.min(Math.round((value / max) * 100), 100) }
-function targetPct(target, max) { return Math.min(Math.round((target / max) * 100), 100) }
+const netBalanceDisplay = computed(() =>
+  metrics.net_energy_balance?.value ?? 4.5
+)
+const netBalanceOk = computed(() => netBalanceDisplay.value >= 0)
+const netStatusRaw = computed(() =>
+  metrics.net_energy_balance?.status ?? (netBalanceOk.value ? 'on_target' : 'off_target')
+)
+const NET_STATUS = {
+  on_target:  { label: 'En objetivo',    cls: 'status-ok'   },
+  off_target: { label: 'Fuera de obj.', cls: 'status-warn'  },
+  at_risk:    { label: 'En riesgo',     cls: 'status-risk'  },
+}
+const netStatusLabel = computed(() => NET_STATUS[netStatusRaw.value]?.label ?? netStatusRaw.value)
+const netStatusClass = computed(() => NET_STATUS[netStatusRaw.value]?.cls ?? '')
+
+// ── KPI trio ──
 
 // ── Rules ──
 const statusMeta = {
@@ -97,24 +111,40 @@ const apiLabels = {
           </div>
         </div>
 
+        <!-- Energy status card -->
+        <div class="card energy-status-card">
+
+          <!-- Batería -->
+          <div class="es-section">
+            <div class="es-label">Batería</div>
+            <div class="es-value-row">
+              <span class="es-value" :class="batteryClass">{{ sensors.battery_level?.value ?? '—' }}</span>
+              <span class="es-unit">%</span>
+            </div>
+            <div class="es-bar-track">
+              <div class="es-bar-fill" :class="batteryFillClass"
+                   :style="{ width: Math.min(sensors.battery_level?.value ?? 0, 100) + '%' }"></div>
+            </div>
+          </div>
+
+          <div class="es-divider"></div>
+
+          <!-- Balance energético neto -->
+          <div class="es-section">
+            <div class="es-label">Balance energético neto</div>
+            <div class="es-sublabel">Autosuficiencia · Objetivo ≥0%</div>
+            <div class="es-kpi-row">
+              <span class="es-kpi-value" :class="netBalanceOk ? 'kpi-ok' : 'kpi-warn'">
+                {{ netBalanceDisplay >= 0 ? '+' : '' }}{{ netBalanceDisplay }}<span class="es-kpi-unit">%</span>
+              </span>
+              <span class="es-status" :class="netStatusClass">{{ netStatusLabel }}</span>
+            </div>
+          </div>
+
+        </div>
+
         <!-- Quick metrics -->
         <div class="card quick-metrics">
-          <div class="qm-row">
-            <i class="ti ti-battery-2 qm-icon" aria-hidden="true"></i>
-            <div class="qm-body">
-              <div class="qm-label">Batería</div>
-              <div class="qm-value">{{ sensors.battery_level?.value ?? '—' }}<span class="qm-unit">%</span></div>
-            </div>
-          </div>
-          <div class="qm-div"></div>
-          <div class="qm-row">
-            <i class="ti ti-sun qm-icon" aria-hidden="true"></i>
-            <div class="qm-body">
-              <div class="qm-label">Renovables</div>
-              <div class="qm-value">{{ val('renewables_pct') }}<span class="qm-unit">%</span></div>
-            </div>
-          </div>
-          <div class="qm-div"></div>
           <div class="qm-row">
             <i class="ti ti-leaf qm-icon" aria-hidden="true"></i>
             <div class="qm-body">
@@ -145,53 +175,62 @@ const apiLabels = {
       <!-- ══ CENTER ══ -->
       <div class="center-col">
 
-        <!-- KPI Trio -->
-        <div class="card kpi-trio-card">
-          <div class="kpi-trio">
+        <!-- Comparison KPIs -->
+        <div class="card cmp-kpi-card">
+          <div class="cmp-kpi-inner">
 
-            <!-- Estabilidad térmica -->
-            <div class="trio-kpi">
-              <div class="trio-label">Estabilidad térmica</div>
-              <div class="trio-value" :class="estabilidadOk ? 'kpi-ok' : 'kpi-warn'">
-                {{ estabilidad }}<span class="trio-unit">%</span>
+            <!-- Agua captada -->
+            <div class="cmp-block">
+              <div class="cmp-label">Agua captada</div>
+              <div class="cmp-value">
+                {{ metrics.water_harvested_today?.value ?? '142' }}<span class="cmp-unit">L</span>
               </div>
-              <div class="trio-target">Objetivo ≥95%</div>
-              <div class="trio-track">
-                <div class="trio-fill" :class="estabilidadOk ? 'fill-ok' : 'fill-warn'"
-                     :style="{ width: kpiBarPct(estabilidad, 100) + '%' }"></div>
-                <div class="trio-marker" :style="{ left: targetPct(95, 100) + '%' }"></div>
+              <div class="cmp-compare">
+                <span class="cmp-delta up"><i class="ti ti-arrow-up" aria-hidden="true"></i>+18%</span>
+                <span class="cmp-vs">vs ayer <strong>120 L</strong></span>
+              </div>
+              <div class="cmp-bar-track">
+                <div class="cmp-bar-today" style="width: 72%"></div>
+                <div class="cmp-bar-yest"  style="width: 60%"></div>
+              </div>
+              <div class="cmp-legend">
+                <span><span class="cmp-dot today"></span>Hoy</span>
+                <span><span class="cmp-dot yest"></span>Ayer</span>
+              </div>
+              <div class="cmp-lm2-row">
+                <span class="cmp-lm2-value" :class="waterLm2Ok ? 'lm2-ok' : 'lm2-warn'">
+                  {{ metrics.water_lm2?.value ?? '9.5' }}<span class="cmp-lm2-unit">L/m²</span>
+                </span>
+                <span class="cmp-lm2-target" :class="waterLm2Ok ? 'lm2-ok' : 'lm2-warn'">
+                  {{ waterLm2Ok ? '✓' : '↓' }} Objetivo &gt;20 L/m²
+                </span>
+              </div>
+              <div class="cmp-lm2-track">
+                <div class="cmp-lm2-fill" :class="waterLm2Ok ? 'lm2-ok' : 'lm2-warn'"
+                     :style="{ width: Math.min(((metrics.water_lm2?.value ?? 9.5) / 30) * 100, 100) + '%' }"></div>
+                <div class="cmp-lm2-marker"></div>
               </div>
             </div>
 
-            <div class="trio-sep"></div>
+            <div class="cmp-divider"></div>
 
-            <!-- Captación de agua -->
-            <div class="trio-kpi">
-              <div class="trio-label">Captación de agua</div>
-              <div class="trio-value" :class="captacionOk ? 'kpi-ok' : 'kpi-warn'">
-                {{ captacion ?? '—' }}<span class="trio-unit">L/m²</span>
+            <!-- Energía generada -->
+            <div class="cmp-block">
+              <div class="cmp-label">Energía generada</div>
+              <div class="cmp-value">
+                {{ metrics.energy_generated_today?.value ?? '38.4' }}<span class="cmp-unit">kWh</span>
               </div>
-              <div class="trio-target">Objetivo >20 L/m²</div>
-              <div class="trio-track" v-if="captacion != null">
-                <div class="trio-fill" :class="captacionOk ? 'fill-ok' : 'fill-warn'"
-                     :style="{ width: kpiBarPct(captacion, 30) + '%' }"></div>
-                <div class="trio-marker" :style="{ left: targetPct(20, 30) + '%' }"></div>
+              <div class="cmp-compare">
+                <span class="cmp-delta up"><i class="ti ti-arrow-up" aria-hidden="true"></i>+7%</span>
+                <span class="cmp-vs">vs ayer <strong>35.9 kWh</strong></span>
               </div>
-            </div>
-
-            <div class="trio-sep"></div>
-
-            <!-- Balance energético neto -->
-            <div class="trio-kpi">
-              <div class="trio-label">Balance energético neto</div>
-              <div class="trio-value" :class="balanceOk ? 'kpi-ok' : 'kpi-warn'">
-                {{ balanceNeto >= 0 ? '+' : '' }}{{ balanceNeto }}<span class="trio-unit">%</span>
+              <div class="cmp-bar-track">
+                <div class="cmp-bar-today" style="width: 80%"></div>
+                <div class="cmp-bar-yest"  style="width: 74%"></div>
               </div>
-              <div class="trio-target">Objetivo ≥0%</div>
-              <div class="trio-track">
-                <div class="trio-fill" :class="balanceOk ? 'fill-ok' : 'fill-warn'"
-                     :style="{ width: kpiBarPct(Math.max(balanceNeto, 0), 100) + '%' }"></div>
-                <div class="trio-marker" style="left: 0%"></div>
+              <div class="cmp-legend">
+                <span><span class="cmp-dot today"></span>Hoy</span>
+                <span><span class="cmp-dot yest"></span>Ayer</span>
               </div>
             </div>
 
@@ -388,6 +427,41 @@ const apiLabels = {
   text-decoration: none;
 }
 
+.energy-status-card { padding: 16px 20px; display: flex; flex-direction: column; gap: 12px; }
+.es-divider { height: 1px; background: var(--border); }
+.es-section { display: flex; flex-direction: column; gap: 5px; }
+.es-label {
+  font-size: 9px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.7px; color: var(--text-muted);
+}
+.es-sublabel { font-size: 9px; color: var(--text-muted); margin-top: -2px; }
+.es-value-row { display: flex; align-items: baseline; gap: 2px; }
+.es-value { font-size: 26px; font-weight: 700; letter-spacing: -1px; line-height: 1; color: var(--text); }
+.es-unit  { font-size: 12px; color: var(--text-secondary); }
+.es-value.bat-ok   { color: var(--blue-raw); }
+.es-value.bat-warn { color: var(--amber); }
+.es-value.bat-low  { color: var(--red); }
+
+.es-bar-track { height: 5px; background: var(--card-alt); border-radius: 3px; }
+.es-bar-fill  { height: 100%; border-radius: 3px; transition: width 0.4s; }
+.es-bar-fill.bat-ok   { background: var(--blue-raw); opacity: 0.85; }
+.es-bar-fill.bat-warn { background: var(--amber);    opacity: 0.85; }
+.es-bar-fill.bat-low  { background: var(--red);      opacity: 0.85; }
+
+.es-kpi-row { display: flex; align-items: center; justify-content: space-between; gap: 6px; }
+.es-kpi-value { font-size: 20px; font-weight: 700; letter-spacing: -0.5px; line-height: 1; }
+.es-kpi-value.kpi-ok   { color: var(--blue-raw); }
+.es-kpi-value.kpi-warn { color: var(--amber); }
+.es-kpi-unit { font-size: 11px; font-weight: 500; margin-left: 1px; opacity: 0.75; }
+
+.es-status {
+  font-size: 9px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.3px; padding: 2px 6px; border-radius: var(--radius-badge);
+}
+.es-status.status-ok   { background: rgba(55,138,221,0.12); color: var(--blue-raw); }
+.es-status.status-warn { background: rgba(226,75,74,0.12);  color: var(--red);      }
+.es-status.status-risk { background: rgba(239,159,39,0.12); color: var(--amber);    }
+
 .quick-metrics { padding: 16px 20px; display: flex; flex-direction: column; gap: 10px; }
 .qm-row { display: flex; align-items: center; gap: 11px; padding: 3px 0; }
 .qm-icon { font-size: 20px; color: var(--blue-raw); width: 22px; flex-shrink: 0; }
@@ -399,46 +473,75 @@ const apiLabels = {
 /* ══ CENTER ══ */
 .center-col { display: flex; flex-direction: column; gap: 12px; }
 
-/* KPI Trio */
-.kpi-trio-card { padding: 20px 24px; }
-.kpi-trio {
+/* Comparison KPIs */
+.cmp-kpi-card { padding: 20px 24px; }
+.cmp-kpi-inner {
   display: grid;
-  grid-template-columns: 1fr 1px 1fr 1px 1fr;
-  gap: 0;
-  align-items: start;
+  grid-template-columns: 1fr 1px 1fr;
+  align-items: center;
 }
-.trio-sep { width: 1px; background: var(--border); align-self: stretch; margin: 0 20px; }
+.cmp-divider { width: 1px; height: 80%; background: var(--border); align-self: center; }
+.cmp-block { display: flex; flex-direction: column; gap: 6px; padding: 0 20px; }
+.cmp-block:first-child { padding-left: 0; }
+.cmp-block:last-child  { padding-right: 0; }
 
-.trio-kpi { display: flex; flex-direction: column; gap: 6px; }
-
-.trio-label {
+.cmp-label {
   font-size: 10px; font-weight: 700; text-transform: uppercase;
   letter-spacing: 0.7px; color: var(--text-muted);
 }
-.trio-value {
-  font-size: 28px; font-weight: 700; letter-spacing: -1px; line-height: 1;
+.cmp-value {
+  font-size: 28px; font-weight: 700; letter-spacing: -1px;
+  color: var(--text); line-height: 1.1;
 }
-.trio-value.kpi-ok   { color: var(--green); }
-.trio-value.kpi-warn { color: var(--amber); }
-.trio-unit { font-size: 13px; font-weight: 500; margin-left: 2px; color: inherit; opacity: 0.7; }
+.cmp-unit { font-size: 13px; color: var(--text-secondary); margin-left: 2px; font-weight: 500; }
 
-.trio-target {
-  font-size: 10px; color: var(--text-muted); font-weight: 500;
+.cmp-compare { display: flex; align-items: center; gap: 8px; }
+.cmp-delta {
+  display: inline-flex; align-items: center; gap: 2px;
+  font-size: 10px; font-weight: 700;
+  padding: 2px 6px; border-radius: 4px;
 }
+.cmp-delta.up { background: rgba(55,138,221,0.10); color: var(--blue-raw); }
+.cmp-delta .ti { font-size: 9px; }
+.cmp-vs { font-size: 10px; color: var(--text-muted); }
+.cmp-vs strong { color: var(--text-secondary); font-weight: 600; }
 
-.trio-track {
-  position: relative; height: 6px;
-  background: var(--card-alt); border-radius: 3px;
-  margin-top: 4px; overflow: visible;
+.cmp-bar-track { display: flex; flex-direction: column; gap: 4px; margin-top: 2px; }
+.cmp-bar-today, .cmp-bar-yest { height: 6px; border-radius: 3px; transition: width 0.4s; }
+.cmp-bar-today { background: var(--blue-raw); opacity: 0.9; }
+.cmp-bar-yest  { background: var(--blue-raw); opacity: 0.25; }
+
+.cmp-legend { display: flex; gap: 12px; }
+.cmp-legend span { display: flex; align-items: center; gap: 4px; font-size: 9px; color: var(--text-muted); }
+.cmp-dot { width: 8px; height: 6px; border-radius: 2px; flex-shrink: 0; }
+.cmp-dot.today { background: var(--blue-raw); opacity: 0.9; }
+.cmp-dot.yest  { background: var(--blue-raw); opacity: 0.3; }
+
+.cmp-lm2-row {
+  display: flex; align-items: baseline; justify-content: space-between;
+  gap: 6px; margin-top: 6px; padding-top: 8px;
+  border-top: 1px solid var(--border);
 }
-.trio-fill {
+.cmp-lm2-value {
+  font-size: 16px; font-weight: 700; letter-spacing: -0.5px; line-height: 1;
+}
+.cmp-lm2-unit { font-size: 10px; font-weight: 500; margin-left: 2px; }
+.cmp-lm2-target { font-size: 10px; font-weight: 600; }
+.lm2-ok   { color: var(--blue-raw); }
+.lm2-warn { color: var(--amber); }
+
+.cmp-lm2-track {
+  position: relative; height: 5px;
+  background: var(--card-alt); border-radius: 3px; overflow: visible;
+}
+.cmp-lm2-fill {
   height: 100%; border-radius: 3px; transition: width 0.4s;
 }
-.trio-fill.fill-ok   { background: var(--green); opacity: 0.85; }
-.trio-fill.fill-warn { background: var(--amber); opacity: 0.85; }
-
-.trio-marker {
-  position: absolute; top: -4px; bottom: -4px;
+.cmp-lm2-fill.lm2-ok   { background: var(--blue-raw); opacity: 0.85; }
+.cmp-lm2-fill.lm2-warn { background: var(--amber);    opacity: 0.85; }
+.cmp-lm2-marker {
+  position: absolute; top: -3px; bottom: -3px;
+  left: 66.6%; /* 20/30 */
   width: 2px; background: var(--border-strong);
   border-radius: 1px; transform: translateX(-50%);
 }
@@ -567,9 +670,9 @@ const apiLabels = {
   .panel-layout { grid-template-columns: 1fr; }
   .left-col, .center-col, .right-col { grid-column: 1; order: unset; }
   .center-middle { grid-template-columns: 1fr; }
-  .kpi-trio { grid-template-columns: 1fr; }
-  .trio-sep { display: none; }
-  .trio-kpi { padding-bottom: 16px; border-bottom: 1px solid var(--border); }
-  .trio-kpi:last-child { border-bottom: none; padding-bottom: 0; }
+  .cmp-kpi-inner { grid-template-columns: 1fr; }
+  .cmp-divider { display: none; }
+  .cmp-block { padding: 0 0 16px; border-bottom: 1px solid var(--border); }
+  .cmp-block:last-child { border-bottom: none; padding-bottom: 0; }
 }
 </style>
