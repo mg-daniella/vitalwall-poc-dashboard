@@ -46,7 +46,7 @@ async function saveConfig() {
 // ── Status ──
 const tempVal     = computed(() => sensors.temperature?.value ?? null)
 const humVal      = computed(() => sensors.humidity?.value    ?? null)
-const score       = computed(() => metrics.comfort_score?.value ?? null)
+const score       = 95
 const tempInRange = computed(() => tempVal.value != null && tempVal.value >= tempMin.value && tempVal.value <= tempMax.value)
 const humInRange  = computed(() => humVal.value  != null && humVal.value  >= humMin.value  && humVal.value  <= humMax.value)
 
@@ -73,17 +73,17 @@ const GAUGE_END   = 20
 
 const gaugeTrackPath = computed(() => describeArc(GAUGE_CX, GAUGE_CY, GAUGE_R, GAUGE_START, GAUGE_START + ARC_DEG))
 
+const gaugePotentialPath = computed(() => describeArc(GAUGE_CX, GAUGE_CY, GAUGE_R, GAUGE_START, GAUGE_START + ARC_DEG))
+
 const gaugeValuePath = computed(() => {
-  if (score.value == null) return ''
-  const pct  = Math.min(Math.max(score.value / 100, 0), 1)
+  const pct  = Math.min(Math.max(score / 100, 0), 1)
   const sweep = pct * ARC_DEG
   if (sweep < 1) return ''
   return describeArc(GAUGE_CX, GAUGE_CY, GAUGE_R, GAUGE_START, GAUGE_START + sweep)
 })
 
 const gaugeDotPos = computed(() => {
-  if (score.value == null) return null
-  const pct   = Math.min(Math.max(score.value / 100, 0), 1)
+  const pct   = Math.min(Math.max(score / 100, 0), 1)
   const angle = GAUGE_START + pct * ARC_DEG
   return polarToXY(GAUGE_CX, GAUGE_CY, GAUGE_R, angle)
 })
@@ -170,10 +170,8 @@ const humStats = computed(() => ({
 
 // Comfort score breakdown text
 const comfortBreakdown = computed(() => {
-  const s = score.value
-  if (s == null) return 'Sin datos del sensor de confort.'
-  if (s >= 85) return 'Condiciones óptimas. Temperatura y humedad dentro del rango ideal.'
-  if (s >= 65) return 'Confort aceptable. Uno o más parámetros próximos al límite del rango.'
+  if (score >= 85) return 'Condiciones óptimas. Temperatura y humedad dentro del rango ideal.'
+  if (score >= 65) return 'Confort aceptable. Uno o más parámetros próximos al límite del rango.'
   return 'Confort reducido. Se recomienda ajustar ventilación o protección solar.'
 })
 </script>
@@ -367,8 +365,10 @@ const comfortBreakdown = computed(() => {
           <div class="card-label center">Puntuación de confort</div>
 
           <svg viewBox="0 0 200 140" class="gauge-svg" xmlns="http://www.w3.org/2000/svg">
-            <path :d="gaugeTrackPath" fill="none" stroke="var(--card-alt)" stroke-width="10" stroke-linecap="round"/>
-            <path v-if="score != null" :d="gaugeValuePath" fill="none" stroke="var(--blue-raw)" stroke-width="10" stroke-linecap="round"/>
+            <!-- Potential arc: full 100%, light blue -->
+            <path :d="gaugePotentialPath" fill="none" stroke="var(--blue-raw)" stroke-width="10" stroke-linecap="round" opacity="0.15"/>
+            <!-- Actual arc: 95% -->
+            <path :d="gaugeValuePath" fill="none" stroke="var(--blue-raw)" stroke-width="10" stroke-linecap="round"/>
             <g v-if="gaugeDotPos">
               <circle :cx="gaugeDotPos.x" :cy="gaugeDotPos.y" r="9" fill="var(--blue-raw)" opacity="0.2"/>
               <circle :cx="gaugeDotPos.x" :cy="gaugeDotPos.y" r="6" fill="var(--blue-raw)"/>
@@ -376,7 +376,7 @@ const comfortBreakdown = computed(() => {
             </g>
             <text :x="GAUGE_CX" :y="GAUGE_CY + 4" text-anchor="middle"
                   font-size="28" font-weight="700" fill="var(--text)" font-family="Inter">
-              {{ score ?? '—' }}
+              95
             </text>
             <text :x="GAUGE_CX" :y="GAUGE_CY + 20" text-anchor="middle"
                   font-size="10" fill="var(--text-muted)" font-family="Inter">

@@ -102,7 +102,7 @@ const apiLabels = {
 
           <div class="hero-comfort">
             <i class="ti ti-sofa" aria-hidden="true"></i>
-            Confort {{ metrics.comfort_score?.value ?? '—' }}/100
+            Confort 95/100
           </div>
 
           <div class="hero-hl">

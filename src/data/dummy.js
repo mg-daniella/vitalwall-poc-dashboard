@@ -44,7 +44,7 @@ export const dummyAirQuality = {
 }
 
 export const dummyMetrics = {
-  comfort_score:       { value: 85,    unit: '/100', status: 'ok' },
+  comfort_score:       { value: 95,    unit: '/100', status: 'ok' },
   water_autonomy_days: { value: 12,    unit: 'días', status: 'ok' },
   energy_source: {
     solar_pct:   60,
