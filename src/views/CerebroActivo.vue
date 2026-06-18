@@ -9,7 +9,7 @@ const metrics = useMetricsStore()
 const filters = ref(['all'])
 const filterOptions = [
   { label: 'Todos',         value: 'all' },
-  { label: 'Decisiones IA', value: 'rule_update' },
+  { label: 'Vital Mind',    value: 'rule_update' },
   { label: 'Entorno',       value: 'environmental_update' },
   { label: 'Sensores',      value: 'sensor_update' },
   { label: 'Métricas',      value: 'metrics_update' },

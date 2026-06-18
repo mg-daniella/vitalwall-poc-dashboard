@@ -30,7 +30,7 @@ const navGroups = [
     label: 'Inteligencia',
     items: [
       { label: 'Cerebro Activo', to: '/cerebro',    icon: IconBrain },
-      { label: 'Decisiones IA',  to: '/decisiones', icon: IconSparkles },
+      { label: 'Vital Mind',     to: '/decisiones', icon: IconSparkles },
     ]
   },
   {
