@@ -1,6 +1,7 @@
 <script setup>
 import StatusDot from './StatusDot.vue'
 import StatusBadge from './StatusBadge.vue'
+import { ACTION_VARIANT } from '@/stores/rules'
 
 defineProps({
   rule: { type: Object, required: true }
@@ -26,6 +27,7 @@ const statusVariant = { active: 'green', pending: 'blue', completed: 'gray', ina
       <div class="rule-title">{{ rule.title }}</div>
       <div class="rule-meta">
         <StatusBadge :label="rule.status" :variant="statusVariant[rule.status] || 'gray'" />
+        <StatusBadge v-if="rule.action_type" :label="rule.action_type" :variant="ACTION_VARIANT[rule.action_type] || 'gray'" />
         <StatusBadge v-if="rule.layer" :label="rule.layer" variant="gray" />
         <StatusBadge v-if="rule.source" :label="rule.source" variant="blue" />
         <span class="rule-time">{{ relativeTime(rule.triggered_at) }}</span>

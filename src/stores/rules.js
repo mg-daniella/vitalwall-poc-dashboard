@@ -2,6 +2,18 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { useApi } from '@/composables/useApi'
 
+// badge variant por action_type — sin iconos, solo color de acento
+export const ACTION_VARIANT = {
+  alert_low_water:       'amber',
+  alert_low_battery:     'red',
+  shift_load_to_now:     'blue',
+  activate_cooling:      'blue',
+  activate_pcm_cooling:  'teal',
+  protect_components:    'red',
+  reduce_internal_load:  'amber',
+  activate_ventilation:  'green',
+}
+
 export const useRulesStore = defineStore('rules', () => {
   const rules    = ref([])
   const loading  = ref(false)
@@ -81,7 +93,8 @@ export const useRulesStore = defineStore('rules', () => {
       duration:     r.duration_hours != null ? `${r.duration_hours}h` : (r.duration || ''),
       triggered_at: r.created_at    || r.triggered_at  || null,
       completed_at: r.updated_at    || r.completed_at  || null,
-      tags:         r.tags          || []
+      tags:         r.tags          || [],
+      action_type:  r.action_type   || null,
     }
   }
 
